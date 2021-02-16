@@ -14,7 +14,11 @@ mongoose
 		useUnifiedTopology: true,
 		useFindAndModify: false,
 	})
-	.then(() => console.log("Connected to MongoDB."))
+	.then((conn) =>
+		console.log(
+			`Connected to MongoDB - Database: ${conn.connection.db.databaseName}`
+		)
+	)
 	.catch((err) => console.log(err));
 
 app.listen(PORT, () => {
