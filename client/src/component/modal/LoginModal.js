@@ -31,6 +31,8 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 		onClose();
 	};
 
+	const required = (value) => (value ? undefined : true);
+
 	const onSubmit = (values) => {
 		console.log(values);
 	};
@@ -39,25 +41,26 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 		<Modal title="Login" open={open} onClose={handleClose}>
 			<Form
 				onSubmit={onSubmit}
-				render={({ handleSubmit }) => (
+				render={({ handleSubmit, valid }) => (
 					<form onSubmit={handleSubmit}>
-						<Field name="username">
-							{(props) => (
+						<Field name="username" validate={required}>
+							{({ input, meta }) => (
 								<Input
 									type="text"
 									label="Username"
-									name={props.input.name}
-									value={props.input.value}
-									onChange={props.input.onChange}
+									{...input}
+									error={meta.error && meta.touched}
+									helperText={
+										meta.error && meta.touched && "Please enter the Username"
+									}
 								/>
 							)}
 						</Field>
-						<Field name="password">
-							{(props) => (
+						<Field name="password" validate={required}>
+							{({ input, meta }) => (
 								<Input
 									type={showPassword ? "text" : "password"}
 									label="Password"
-									name={props.input.name}
 									InputProps={{
 										endAdornment: (
 											<IconButton
@@ -67,8 +70,11 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 											</IconButton>
 										),
 									}}
-									value={props.input.value}
-									onChange={props.input.onChange}
+									{...input}
+									error={meta.error && meta.touched}
+									helperText={
+										meta.error && meta.touched && "Please enter the Password"
+									}
 								/>
 							)}
 						</Field>
@@ -77,6 +83,7 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 							color="secondary"
 							type="submit"
 							className={classes.submitBtn}
+							disabled={!valid}
 						>
 							Login
 						</Button>

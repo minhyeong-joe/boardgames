@@ -30,6 +30,22 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 	const classes = useStyles();
 	const [showPassword, setShowPassword] = useState(false);
 
+	const required = (value) => (value ? undefined : "Field is Required");
+
+	const range = (min, max) => (value) =>
+		value.length >= min && value.length <= max
+			? undefined
+			: `Must be between ${min}-${max} characters`;
+
+	const matching = (password) => (value) =>
+		value === password ? undefined : "Passwords do not match";
+
+	const composeValidators = (...validators) => (value) =>
+		validators.reduce(
+			(error, validator) => error || validator(value),
+			undefined
+		);
+
 	const onSubmit = (values) => {
 		console.log(values);
 	};
@@ -38,27 +54,31 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 		<Modal title="Sign Up" open={open} onClose={onClose}>
 			<Form
 				onSubmit={onSubmit}
-				render={({ handleSubmit }) => (
+				render={({ handleSubmit, values, valid }) => (
 					<form onSubmit={handleSubmit}>
-						<Field name="username">
-							{(props) => (
+						<Field
+							name="username"
+							validate={composeValidators(required, range(5, 12))}
+						>
+							{({ input, meta }) => (
 								<Input
 									type="text"
 									label="Username"
-									name={props.input.name}
-									value={props.input.value}
-									onChange={props.input.onChange}
+									{...input}
+									error={meta.error && meta.touched}
+									helperText={meta.error && meta.touched && `${meta.error}`}
 								/>
 							)}
 						</Field>
-						<Field name="password">
-							{(props) => (
+						<Field
+							name="password"
+							validate={composeValidators(required, range(8, 16))}
+						>
+							{({ input, meta }) => (
 								<Input
 									type={showPassword ? "text" : "password"}
 									label="Password"
-									name={props.input.name}
-									value={props.input.value}
-									onChange={props.input.onChange}
+									{...input}
 									InputProps={{
 										endAdornment: (
 											<IconButton
@@ -68,17 +88,22 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 											</IconButton>
 										),
 									}}
+									error={meta.error && meta.touched}
+									helperText={meta.error && meta.touched && `${meta.error}`}
 								/>
 							)}
 						</Field>
-						<Field name="checkPassword">
-							{(props) => (
+						<Field
+							name="checkPassword"
+							validate={composeValidators(required, matching(values.password))}
+						>
+							{({ input, meta }) => (
 								<Input
 									type="password"
 									label="Re-enter Password"
-									name={props.input.name}
-									value={props.input.value}
-									onChange={props.input.onChange}
+									{...input}
+									error={meta.error && meta.touched}
+									helperText={meta.error && meta.touched && `${meta.error}`}
 								/>
 							)}
 						</Field>
@@ -87,6 +112,7 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 							variant="contained"
 							type="submit"
 							className={classes.submitBtn}
+							disabled={!valid}
 						>
 							Sign Up
 						</Button>
