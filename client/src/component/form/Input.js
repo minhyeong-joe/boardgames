@@ -8,18 +8,25 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Input = ({ label, name, value, handleInputChange, type, ...props }) => {
+const Input = ({
+	input: { name, onChange, value, ...inputProps },
+	meta,
+	label,
+	...props
+}) => {
 	const classes = useStyles();
 	return (
 		<FormControl fullWidth className={classes.formControl}>
 			<TextField
-				type={type}
-				label={label}
-				name={name}
-				variant="outlined"
-				value={value}
-				onChange={handleInputChange}
 				{...props}
+				inputProps={inputProps}
+				variant="outlined"
+				name={name}
+				value={value}
+				onChange={onChange}
+				error={meta.error && meta.touched}
+				helperText={meta.touched ? meta.error : ""}
+				label={label}
 			/>
 		</FormControl>
 	);

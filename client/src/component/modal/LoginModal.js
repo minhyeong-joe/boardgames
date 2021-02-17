@@ -31,7 +31,7 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 		onClose();
 	};
 
-	const required = (value) => (value ? undefined : true);
+	const required = (value) => (value ? undefined : "This field is Required");
 
 	const onSubmit = (values) => {
 		console.log(values);
@@ -43,41 +43,27 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 				onSubmit={onSubmit}
 				render={({ handleSubmit, submitting }) => (
 					<form onSubmit={handleSubmit}>
-						<Field name="username" validate={required}>
-							{({ input, meta }) => (
-								<Input
-									type="text"
-									label="Username"
-									{...input}
-									error={meta.error && meta.touched}
-									helperText={
-										meta.error && meta.touched && "Please enter the Username"
-									}
-								/>
-							)}
-						</Field>
-						<Field name="password" validate={required}>
-							{({ input, meta }) => (
-								<Input
-									type={showPassword ? "text" : "password"}
-									label="Password"
-									InputProps={{
-										endAdornment: (
-											<IconButton
-												onClick={() => setShowPassword(!showPassword)}
-											>
-												{showPassword ? <Visibility /> : <VisibilityOff />}
-											</IconButton>
-										),
-									}}
-									{...input}
-									error={meta.error && meta.touched}
-									helperText={
-										meta.error && meta.touched && "Please enter the Password"
-									}
-								/>
-							)}
-						</Field>
+						<Field
+							name="username"
+							validate={required}
+							type="text"
+							label="Username"
+							component={Input}
+						/>
+						<Field
+							name="password"
+							validate={required}
+							type={showPassword ? "text" : "password"}
+							label="Password"
+							InputProps={{
+								endAdornment: (
+									<IconButton onClick={() => setShowPassword(!showPassword)}>
+										{showPassword ? <Visibility /> : <VisibilityOff />}
+									</IconButton>
+								),
+							}}
+							component={Input}
+						/>
 						<Button
 							variant="contained"
 							color="secondary"

@@ -59,54 +59,31 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 						<Field
 							name="username"
 							validate={composeValidators(required, range(5, 12))}
-						>
-							{({ input, meta }) => (
-								<Input
-									type="text"
-									label="Username"
-									{...input}
-									error={meta.error && meta.touched}
-									helperText={meta.error && meta.touched && `${meta.error}`}
-								/>
-							)}
-						</Field>
+							component={Input}
+							type="text"
+							label="Username"
+						/>
 						<Field
 							name="password"
 							validate={composeValidators(required, range(8, 16))}
-						>
-							{({ input, meta }) => (
-								<Input
-									type={showPassword ? "text" : "password"}
-									label="Password"
-									{...input}
-									InputProps={{
-										endAdornment: (
-											<IconButton
-												onClick={() => setShowPassword(!showPassword)}
-											>
-												{showPassword ? <Visibility /> : <VisibilityOff />}
-											</IconButton>
-										),
-									}}
-									error={meta.error && meta.touched}
-									helperText={meta.error && meta.touched && `${meta.error}`}
-								/>
-							)}
-						</Field>
+							component={Input}
+							type={showPassword ? "text" : "password"}
+							label="Password"
+							InputProps={{
+								endAdornment: (
+									<IconButton onClick={() => setShowPassword(!showPassword)}>
+										{showPassword ? <Visibility /> : <VisibilityOff />}
+									</IconButton>
+								),
+							}}
+						/>
 						<Field
 							name="checkPassword"
 							validate={composeValidators(required, matching(values.password))}
-						>
-							{({ input, meta }) => (
-								<Input
-									type="password"
-									label="Re-enter Password"
-									{...input}
-									error={meta.error && meta.touched}
-									helperText={meta.error && meta.touched && `${meta.error}`}
-								/>
-							)}
-						</Field>
+							component={Input}
+							type="password"
+							label="Re-enter Password"
+						/>
 
 						<Button
 							variant="contained"
