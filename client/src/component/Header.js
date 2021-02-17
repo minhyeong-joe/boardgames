@@ -11,6 +11,7 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
+		background: theme.palette.primary.mainGradient,
 	},
 }));
 
