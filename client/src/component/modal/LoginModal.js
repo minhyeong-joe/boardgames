@@ -41,7 +41,7 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 		<Modal title="Login" open={open} onClose={handleClose}>
 			<Form
 				onSubmit={onSubmit}
-				render={({ handleSubmit, valid }) => (
+				render={({ handleSubmit, submitting }) => (
 					<form onSubmit={handleSubmit}>
 						<Field name="username" validate={required}>
 							{({ input, meta }) => (
@@ -83,7 +83,7 @@ const LoginModal = ({ open, onClose, onClickSignUp }) => {
 							color="secondary"
 							type="submit"
 							className={classes.submitBtn}
-							disabled={!valid}
+							disabled={submitting}
 						>
 							Login
 						</Button>

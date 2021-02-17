@@ -54,7 +54,7 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 		<Modal title="Sign Up" open={open} onClose={onClose}>
 			<Form
 				onSubmit={onSubmit}
-				render={({ handleSubmit, values, valid }) => (
+				render={({ handleSubmit, values, submitting }) => (
 					<form onSubmit={handleSubmit}>
 						<Field
 							name="username"
@@ -112,7 +112,7 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 							variant="contained"
 							type="submit"
 							className={classes.submitBtn}
-							disabled={!valid}
+							disabled={submitting}
 						>
 							Sign Up
 						</Button>
