@@ -1,8 +1,11 @@
 const express = require("express");
+const passport = require("passport");
 const {
 	getUsers,
 	createUser,
 	authenticateUser,
+	getLoggedInUser,
+	logoutUser,
 } = require("../controllers/users");
 
 const router = express.Router();
@@ -19,6 +22,12 @@ router.post("/", createUser);
 // POST /api/users/auth
 // body: { username: String, password: String }
 // Authenticate a user using passport Local Strategy
-router.post("/auth", authenticateUser);
+router.post("/login", authenticateUser);
+
+// GET /api/users/auth
+// Get logged-in user's info (or isLoggedIn:false if not logged in)
+router.get("/auth", getLoggedInUser);
+
+router.post("/logout", logoutUser);
 
 module.exports = router;
