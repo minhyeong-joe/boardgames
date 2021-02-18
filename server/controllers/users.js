@@ -43,7 +43,6 @@ const authenticateUser = (req, res, next) => {
 				const { password, __v, ...userInfo } = req.user._doc;
 				res.status(200).json({
 					success: true,
-					token: req.session.passport.user,
 					userInfo: userInfo,
 				});
 			});
@@ -54,10 +53,10 @@ const authenticateUser = (req, res, next) => {
 // get loggedIn User
 const getLoggedInUser = (req, res) => {
 	if (req.user) {
+		const { password, __v, ...userInfo } = req.user._doc;
 		res.json({
 			isLoggedIn: true,
-			userId: req.user._id,
-			username: req.user.username,
+			userInfo: userInfo,
 		});
 	} else {
 		res.json({ isLoggedIn: false });

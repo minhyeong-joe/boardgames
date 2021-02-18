@@ -13,7 +13,7 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Link } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getUserInfo, logoutUser, openModal } from "../actions";
+import { getUserInfo, logoutUser, openModal, showFlash } from "../actions";
 import { LOGIN_MODAL } from "./modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +59,12 @@ const Header = () => {
 
 	const handleLogout = () => {
 		dispatch(logoutUser());
+		dispatch(
+			showFlash({
+				message: "You are now Signed Out",
+				duration: 2000,
+			})
+		);
 		setAnchorEl(null);
 	};
 	return (

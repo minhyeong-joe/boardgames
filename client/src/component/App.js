@@ -8,6 +8,7 @@ import theme from "../style-customization/theme";
 import SingleGame from "./screen/single_game/SingleGame";
 import LoginModal from "./modal/LoginModal";
 import SignUpModal from "./modal/SignUpModal";
+import FlashMessage from "./FlashMessage";
 
 const App = () => {
 	return (
@@ -21,6 +22,7 @@ const App = () => {
 				{/* PAGES */}
 				<Route path="/" exact component={Home} />
 				<Route path="/game/:gameId" exact component={SingleGame} />
+				<FlashMessage />
 			</BrowserRouter>
 		</ThemeProvider>
 	);

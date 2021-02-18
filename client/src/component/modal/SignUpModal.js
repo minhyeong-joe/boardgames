@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { Field, Form } from "react-final-form";
-import {
-	Button,
-	IconButton,
-	makeStyles,
-	Paper,
-	Typography,
-} from "@material-ui/core";
+import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import axios from "axios";
@@ -14,17 +9,21 @@ import axios from "axios";
 import Modal from "./Modal";
 import Input from "../form/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { closeModal, loginUser, openModal } from "../../actions";
+import {
+	authenticateUser,
+	closeModal,
+	loginUser,
+	openModal,
+	showFlash,
+} from "../../actions";
 import { SIGNUP_MODAL } from "./modalTypes";
 import { required, range, matching, composeValidators } from "./validation";
 
 const useStyles = makeStyles((theme) => ({
-	errorMessage: {
-		textAlign: "center",
+	alert: {
 		padding: theme.spacing(1),
-		backgroundColor: theme.palette.error.main,
-		color: "white",
 		marginBottom: theme.spacing(1),
+		fontFamily: theme.typography.body1.fontFamily,
 	},
 	submitBtn: {
 		display: "block",
@@ -58,7 +57,10 @@ const SignUpModal = () => {
 		});
 		if (data.success) {
 			dispatch(
-				loginUser({ username: values.username, password: values.password })
+				authenticateUser({
+					username: values.username,
+					password: values.password,
+				})
 			);
 			setShowPassword(false);
 			dispatch(closeModal());
@@ -116,9 +118,9 @@ const SignUpModal = () => {
 						/>
 
 						{error ? (
-							<Paper className={classes.errorMessage}>
-								<Typography variant="body1">{error}</Typography>
-							</Paper>
+							<Alert severity="error" className={classes.alert}>
+								{error}
+							</Alert>
 						) : null}
 
 						<Button

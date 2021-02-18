@@ -4,18 +4,26 @@ import {
 	Button,
 	IconButton,
 	makeStyles,
-	Paper,
+	Snackbar,
 	Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import Modal from "./Modal";
 import Input from "../form/Input";
 import { useDispatch, useSelector } from "react-redux";
-import { closeModal, loginUser, openModal } from "../../actions";
+import {
+	authenticateUser,
+	closeModal,
+	loginUser,
+	openModal,
+	showFlash,
+} from "../../actions";
 import { LOGIN_MODAL } from "./modalTypes";
 import { required } from "./validation";
+import FlashMessage from "../FlashMessage";
 
 const useStyles = makeStyles((theme) => ({
 	submitBtn: {
@@ -25,12 +33,10 @@ const useStyles = makeStyles((theme) => ({
 		color: "white",
 	},
 	textCenter: { textAlign: "center", marginTop: "16px" },
-	errorMessage: {
-		textAlign: "center",
+	alert: {
 		padding: theme.spacing(1),
-		backgroundColor: theme.palette.error.main,
-		color: "white",
 		marginBottom: theme.spacing(1),
+		fontFamily: theme.typography.body1.fontFamily,
 	},
 	link: {
 		textDecoration: "underline",
@@ -48,19 +54,25 @@ const LoginModal = () => {
 	const [error, setError] = useState(null);
 
 	const onSubmit = (values) => {
-		dispatch(loginUser(values));
+		dispatch(authenticateUser(values));
 	};
 
 	useEffect(() => {
-		if (!auth.success) {
+		if (auth.success) {
+			dispatch(loginUser());
+			dispatch(
+				showFlash({
+					message: "Login Successful!",
+					duration: 2000,
+				})
+			);
+			setShowPassword(false);
+			dispatch(closeModal());
+		} else {
 			setError(auth.message);
 			setTimeout(() => {
 				setError(null);
 			}, 1500);
-		}
-		if (auth.isLoggedIn) {
-			setShowPassword(false);
-			dispatch(closeModal());
 		}
 	}, [auth, dispatch]);
 
@@ -99,9 +111,9 @@ const LoginModal = () => {
 							component={Input}
 						/>
 						{error ? (
-							<Paper className={classes.errorMessage}>
-								<Typography variant="body1">{error}</Typography>
-							</Paper>
+							<Alert severity="error" className={classes.alert}>
+								{error}
+							</Alert>
 						) : null}
 						<Button
 							variant="contained"
