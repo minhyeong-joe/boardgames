@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, makeStyles } from "@material-ui/core";
-import SearchForm from "./home/SearchForm";
-import BoardGameList from "./home/BoardGameList";
+import SearchForm from "./SearchForm";
+import BoardGameList from "./BoardGameList";
 
 const useStyles = makeStyles((theme) => ({
 	root: {

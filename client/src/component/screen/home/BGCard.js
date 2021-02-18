@@ -42,7 +42,7 @@ const BGCard = ({ bg }) => {
 
 	return (
 		<Card raised className={classes.card}>
-			<Link to="/">
+			<Link to={`/game/${bg.id}`}>
 				<CardMedia
 					image={bg.image_url}
 					title={bg.name}
@@ -50,7 +50,7 @@ const BGCard = ({ bg }) => {
 				/>
 			</Link>
 			<CardContent className={classes.cardBody}>
-				<Link to="/" className={classes.link}>
+				<Link to={`/game/${bg.id}`} className={classes.link}>
 					<Typography variant="body1" className={classes.gameTitle}>
 						{bg.name}
 					</Typography>
