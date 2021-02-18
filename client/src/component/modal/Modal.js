@@ -8,6 +8,8 @@ import {
 	Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { closeModal } from "../../actions";
+import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
 	modal: {
@@ -30,18 +32,26 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const Modal = ({ title, open, onClose, children }) => {
+const Modal = ({ open, title, children, cleanUp }) => {
 	const classes = useStyles();
+	const dispatch = useDispatch();
+
+	const handleClose = () => {
+		if (cleanUp) {
+			cleanUp();
+		}
+		dispatch(closeModal());
+	};
 
 	return (
-		<MUIModal open={open} onClose={onClose} className={classes.modal}>
+		<MUIModal open={open} onClose={handleClose} className={classes.modal}>
 			<Paper className={classes.modalBody}>
 				<Grid container alignItems="center" className={classes.modalHeader}>
 					<Grid item xs>
 						<Typography variant="h5">{title}</Typography>
 					</Grid>
 					<Grid item>
-						<IconButton onClick={onClose}>
+						<IconButton onClick={() => dispatch(closeModal())}>
 							<CloseIcon />
 						</IconButton>
 					</Grid>

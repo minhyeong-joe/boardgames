@@ -1,5 +1,3 @@
-import { requirePropFactory } from "@material-ui/core";
-
 const images = {
 	boardgame1: require("./boardgame_temp.png").default,
 };

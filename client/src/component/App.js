@@ -6,6 +6,8 @@ import Header from "./Header";
 import Home from "./screen/home/Home";
 import theme from "../style-customization/theme";
 import SingleGame from "./screen/single_game/SingleGame";
+import LoginModal from "./modal/LoginModal";
+import SignUpModal from "./modal/SignUpModal";
 
 const App = () => {
 	return (
@@ -13,6 +15,10 @@ const App = () => {
 			<CssBaseline />
 			<BrowserRouter>
 				<Header />
+				{/* MODALS */}
+				<LoginModal />
+				<SignUpModal />
+				{/* PAGES */}
 				<Route path="/" exact component={Home} />
 				<Route path="/game/:gameId" exact component={SingleGame} />
 			</BrowserRouter>

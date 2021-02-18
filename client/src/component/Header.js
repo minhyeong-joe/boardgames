@@ -1,16 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	AppBar,
+	Button,
 	IconButton,
 	makeStyles,
+	Menu,
+	MenuItem,
 	Toolbar,
 	Typography,
 } from "@material-ui/core";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Link } from "react-router-dom";
 
-import LoginModal from "./modal/LoginModal";
-import SignUpModal from "./modal/SignUpModal";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserInfo, logoutUser, openModal } from "../actions";
+import { LOGIN_MODAL } from "./modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -27,42 +31,82 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = () => {
 	const classes = useStyles();
-	const [open, setOpen] = useState(false);
-	const [modal, setModal] = useState("login");
+	const [anchorEl, setAnchorEl] = useState(null);
+	const dispatch = useDispatch();
+	const auth = useSelector((state) => state.auth);
 
-	const handleOpen = () => {
-		setOpen(true);
+	// on refresh, the redux store will get updated from session
+	useEffect(() => {
+		dispatch(getUserInfo());
+	}, [dispatch]);
+
+	// debugger for auth
+	useEffect(() => {
+		console.log(auth);
+	}, [auth]);
+
+	const handleModalOpen = () => {
+		dispatch(openModal(LOGIN_MODAL));
 	};
 
-	const handleClose = () => {
-		setOpen(false);
-		setModal("login");
+	const handleMenuOpen = (e) => {
+		setAnchorEl(e.currentTarget);
 	};
 
+	const handleMenuClose = () => {
+		setAnchorEl(null);
+	};
+
+	const handleLogout = () => {
+		dispatch(logoutUser());
+		setAnchorEl(null);
+	};
 	return (
 		<AppBar position="static" className={classes.root}>
 			<Toolbar>
 				<Link to="/" className={classes.logo}>
 					<Typography variant="h4">Family Board Games</Typography>
 				</Link>
-				<IconButton onClick={handleOpen}>
-					<AccountCircleIcon fontSize="large" />
-				</IconButton>
+				{auth.isLoggedIn ? (
+					<>
+						<IconButton onClick={handleMenuOpen}>
+							<AccountCircleIcon fontSize="large" />
+						</IconButton>
+						<Menu
+							anchorEl={anchorEl}
+							keepMounted
+							open={Boolean(anchorEl)}
+							onClose={handleMenuClose}
+							getContentAnchorEl={null}
+							anchorOrigin={{
+								vertical: "bottom",
+								horizontal: "center",
+							}}
+							transformOrigin={{
+								vertical: "top",
+								horizontal: "center",
+							}}
+						>
+							<MenuItem>
+								<Typography variant="body1">Profile</Typography>
+							</MenuItem>
+							<MenuItem>
+								<Typography variant="body1">Friends</Typography>
+							</MenuItem>
+							<hr />
+							<MenuItem>
+								<Typography variant="body1" onClick={handleLogout}>
+									Logout
+								</Typography>
+							</MenuItem>
+						</Menu>
+					</>
+				) : (
+					<Button variant="outlined" onClick={handleModalOpen}>
+						Login
+					</Button>
+				)}
 			</Toolbar>
-			{/* Modal */}
-			{modal === "login" ? (
-				<LoginModal
-					open={open}
-					onClose={handleClose}
-					onClickSignUp={() => setModal("signup")}
-				/>
-			) : (
-				<SignUpModal
-					open={open}
-					onClose={handleClose}
-					onClickLogin={() => setModal("login")}
-				/>
-			)}
 		</AppBar>
 	);
 };

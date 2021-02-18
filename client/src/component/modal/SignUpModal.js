@@ -1,13 +1,31 @@
 import React, { useState } from "react";
 import { Field, Form } from "react-final-form";
-import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
+import {
+	Button,
+	IconButton,
+	makeStyles,
+	Paper,
+	Typography,
+} from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import axios from "axios";
 
 import Modal from "./Modal";
 import Input from "../form/Input";
+import { useDispatch, useSelector } from "react-redux";
+import { closeModal, loginUser, openModal } from "../../actions";
+import { SIGNUP_MODAL } from "./modalTypes";
+import { required, range, matching, composeValidators } from "./validation";
 
 const useStyles = makeStyles((theme) => ({
+	errorMessage: {
+		textAlign: "center",
+		padding: theme.spacing(1),
+		backgroundColor: theme.palette.error.main,
+		color: "white",
+		marginBottom: theme.spacing(1),
+	},
 	submitBtn: {
 		display: "block",
 		marginLeft: "auto",
@@ -26,32 +44,38 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const SignUpModal = ({ open, onClose, onClickLogin }) => {
+const SignUpModal = () => {
 	const classes = useStyles();
 	const [showPassword, setShowPassword] = useState(false);
+	const [error, setError] = useState(null);
+	const dispatch = useDispatch();
+	const modal = useSelector((state) => state.modal);
 
-	const required = (value) => (value ? undefined : "Field is Required");
-
-	const range = (min, max) => (value) =>
-		value.length >= min && value.length <= max
-			? undefined
-			: `Must be between ${min}-${max} characters`;
-
-	const matching = (password) => (value) =>
-		value === password ? undefined : "Passwords do not match";
-
-	const composeValidators = (...validators) => (value) =>
-		validators.reduce(
-			(error, validator) => error || validator(value),
-			undefined
-		);
-
-	const onSubmit = (values) => {
-		console.log(values);
+	const onSubmit = async (values) => {
+		const { data } = await axios.post("http://localhost/api/users", {
+			username: values.username,
+			password: values.password,
+		});
+		if (data.success) {
+			dispatch(
+				loginUser({ username: values.username, password: values.password })
+			);
+			setShowPassword(false);
+			dispatch(closeModal());
+		} else {
+			setError(data.message);
+			setTimeout(() => {
+				setError(null);
+			}, 1500);
+		}
 	};
 
 	return (
-		<Modal title="Sign Up" open={open} onClose={onClose}>
+		<Modal
+			title="Sign Up"
+			open={modal.show && modal.modalName === SIGNUP_MODAL}
+			cleanUp={() => setShowPassword(false)}
+		>
 			<Form
 				onSubmit={onSubmit}
 				render={({ handleSubmit, values, submitting }) => (
@@ -71,7 +95,10 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 							label="Password"
 							InputProps={{
 								endAdornment: (
-									<IconButton onClick={() => setShowPassword(!showPassword)}>
+									<IconButton
+										onClick={() => setShowPassword(!showPassword)}
+										tabIndex={-1}
+									>
 										{showPassword ? <Visibility /> : <VisibilityOff />}
 									</IconButton>
 								),
@@ -79,11 +106,20 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 						/>
 						<Field
 							name="checkPassword"
-							validate={composeValidators(required, matching(values.password))}
+							validate={composeValidators(
+								required,
+								matching(values.password, "Passwords do not match")
+							)}
 							component={Input}
 							type="password"
 							label="Re-enter Password"
 						/>
+
+						{error ? (
+							<Paper className={classes.errorMessage}>
+								<Typography variant="body1">{error}</Typography>
+							</Paper>
+						) : null}
 
 						<Button
 							variant="contained"
@@ -99,7 +135,10 @@ const SignUpModal = ({ open, onClose, onClickLogin }) => {
 
 			<Typography variant="body1" className={classes.textCenter}>
 				Already registered?{" "}
-				<span className={classes.link} onClick={onClickLogin}>
+				<span
+					className={classes.link}
+					onClick={() => dispatch(openModal("LoginModal"))}
+				>
 					Log-In Now
 				</span>
 			</Typography>
