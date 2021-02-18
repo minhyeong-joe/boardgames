@@ -1,106 +1,137 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Button,
 	Container,
+	FormLabel,
 	Grid,
+	IconButton,
 	makeStyles,
-	Typography,
 } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 
-import { openModal } from "../../../actions";
-import { LOGIN_MODAL } from "../../modal/modalTypes";
-import images from "../../../assets/image";
-import { HiOutlineUserGroup } from "react-icons/hi";
-import { FaBrain } from "react-icons/fa";
-import { GiSandsOfTime } from "react-icons/gi";
+import AddIcon from "@material-ui/icons/Add";
+import SearchIcon from "@material-ui/icons/Search";
+import Input from "../../form/Input";
+import { Field, Form } from "react-final-form";
+import GameDetail from "./GameDetail";
+import RoomTable from "./RoomTable";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
+		// temp
+		border: "1px solid black",
 	},
-	gameInfoRow: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		width: "516px",
-		marginLeft: "auto",
-		marginRight: "auto",
-		marginTop: theme.spacing(2),
-		marginBottom: theme.spacing(2),
-		maxWidth: "90vw",
-	},
-	"@media screen and (max-width: 500px)": {
-		gameInfoRow: {
-			flexDirection: "column",
+	createRoomBtn: {
+		backgroundColor: theme.palette.success.main,
+		"&:hover": {
+			backgroundColor: theme.palette.success.dark,
 		},
 	},
-	gameImageContainer: {
-		width: "250px",
-		height: "250px",
-		marginRight: theme.spacing(2),
-	},
-	gameImage: {
-		width: "100%",
-		height: "100%",
-		objectFit: "cover",
-	},
-	gameInfo: {
-		textAlign: "left",
-		width: "250px",
-	},
 }));
+
+// mock-up rooms
+const ROOMS = [
+	{
+		id: "1",
+		name: "Room 1",
+		password: "123",
+		owner: "user123",
+		maxOccupancy: 5,
+		numMembers: 2,
+	},
+	{
+		id: "2",
+		name: "Room 2",
+		password: "",
+		owner: "test",
+		maxOccupancy: 4,
+		numMembers: 1,
+	},
+	{ id: "3", name: "Room 3", owner: "user", maxOccupancy: 4, numMembers: 2 },
+	{
+		id: "4",
+		name: "Room 4",
+		password: "abc",
+		owner: "billy",
+		maxOccupancy: 6,
+		numMembers: 4,
+	},
+	{
+		id: "5",
+		name: "Room 5",
+		password: "",
+		owner: "owner12",
+		maxOccupancy: 5,
+		numMembers: 5,
+	},
+];
 
 const SingleGame = ({ match }) => {
 	console.log(match.params.gameId);
 	const classes = useStyles();
 	const dispatch = useDispatch();
+	const [rooms, setRooms] = useState(ROOMS);
+
+	const onSubmit = (values) => {
+		if (values.search) {
+			setRooms(
+				ROOMS.filter((room) =>
+					room.name.toLowerCase().includes(values.search.toLowerCase())
+				)
+			);
+		} else {
+			setRooms(ROOMS);
+		}
+	};
+
+	useEffect(() => {
+		console.log(rooms);
+	}, [rooms]);
 
 	return (
 		<Container className={classes.root}>
-			<div className={classes.gameInfoRow}>
-				<div className={classes.gameImageContainer}>
-					<img
-						src={"https://source.unsplash.com/random"}
-						alt="boardgame"
-						className={classes.gameImage}
-					/>
-				</div>
-				<div className={classes.gameInfo}>
-					<Typography variant="h5">Board Game Name</Typography>
-					<Grid container alignItems="center" spacing={1}>
-						<Grid item>
-							<HiOutlineUserGroup size="30px" />
-						</Grid>
-						<Grid item xs>
-							<Typography variant="subtitle1" className={classes.infoText}>
-								2-5
-							</Typography>
-						</Grid>
-					</Grid>
-					<Grid container alignItems="center" spacing={1}>
-						<Grid item>
-							<FaBrain size="30px" />
-						</Grid>
-						<Grid item xs>
-							<Typography variant="subtitle1" className={classes.infoText}>
-								Easy
-							</Typography>
-						</Grid>
-					</Grid>
-					<Grid container alignItems="center" spacing={1}>
-						<Grid item>
-							<GiSandsOfTime size="30px" />
-						</Grid>
-						<Grid item xs>
-							<Typography variant="subtitle1" className={classes.infoText}>
-								Medium
-							</Typography>
-						</Grid>
-					</Grid>
-					<Button variant="outlined">Game Rule</Button>
-				</div>
-			</div>
+			<GameDetail />
+			<Grid container justify="space-between" alignItems="center">
+				<Grid item>
+					<Form onSubmit={onSubmit}>
+						{({ handleSubmit }) => (
+							<form onSubmit={handleSubmit}>
+								<Grid container alignItems="center" spacing={1}>
+									<Grid item>
+										<FormLabel>Room Name:</FormLabel>
+									</Grid>
+									<Grid item>
+										<Field
+											name="search"
+											label="Search"
+											component={Input}
+											InputProps={{
+												endAdornment: (
+													<IconButton tabIndex={-1} type="submit">
+														<SearchIcon />
+													</IconButton>
+												),
+											}}
+										/>
+									</Grid>
+								</Grid>
+							</form>
+						)}
+					</Form>
+				</Grid>
+				<Grid item>
+					<Button
+						variant="contained"
+						color="primary"
+						startIcon={<AddIcon />}
+						className={classes.createRoomBtn}
+					>
+						Create a Room
+					</Button>
+				</Grid>
+			</Grid>
+			<RoomTable rooms={rooms} />
 		</Container>
 	);
 };
