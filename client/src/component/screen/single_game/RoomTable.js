@@ -100,7 +100,7 @@ const RoomTable = ({ rooms }) => {
 			console.log(`Room ID ${id} Clicked`);
 			history.push(`/room/${id}`);
 		} else {
-			dispatch(openModal(LOGIN_MODAL));
+			dispatch(openModal({ modalName: LOGIN_MODAL }));
 		}
 	};
 

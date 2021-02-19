@@ -46,7 +46,7 @@ const Header = () => {
 	}, [auth]);
 
 	const handleModalOpen = () => {
-		dispatch(openModal(LOGIN_MODAL));
+		dispatch(openModal({ modalName: LOGIN_MODAL }));
 	};
 
 	const handleMenuOpen = (e) => {
