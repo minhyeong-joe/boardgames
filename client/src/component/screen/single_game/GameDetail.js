@@ -17,11 +17,6 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: theme.spacing(2),
 		maxWidth: "90vw",
 	},
-	"@media screen and (max-width: 500px)": {
-		gameInfoRow: {
-			flexDirection: "column",
-		},
-	},
 	gameImageContainer: {
 		width: "250px",
 		height: "250px",
@@ -36,6 +31,14 @@ const useStyles = makeStyles((theme) => ({
 		textAlign: "left",
 		width: "250px",
 	},
+	[theme.breakpoints.down("xs")]: {
+		gameInfoRow: {
+			flexDirection: "column",
+		},
+		gameImageContainer: {
+			marginRight: 0,
+		},
+	},
 }));
 
 const GameDetail = () => {
@@ -44,7 +47,7 @@ const GameDetail = () => {
 		<div className={classes.gameInfoRow}>
 			<div className={classes.gameImageContainer}>
 				<img
-					src={"https://source.unsplash.com/random"}
+					src={images.boardgame1}
 					alt="boardgame"
 					className={classes.gameImage}
 				/>

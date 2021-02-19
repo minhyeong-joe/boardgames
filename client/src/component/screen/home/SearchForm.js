@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Button, Grid, makeStyles, MenuItem } from "@material-ui/core";
+import {
+	Button,
+	FormLabel,
+	Grid,
+	InputLabel,
+	makeStyles,
+	MenuItem,
+} from "@material-ui/core";
 import { Field, Form } from "react-final-form";
 import Select from "../../form/Select";
 import Input from "../../form/Input";
@@ -7,9 +14,6 @@ import Input from "../../form/Input";
 const useStyles = makeStyles((theme) => ({
 	inlineLabel: {
 		display: "inline-block",
-	},
-	searchField: {
-		marginBottom: -theme.spacing(3),
 	},
 	btnGroup: {
 		marginTop: theme.spacing(3),
@@ -66,9 +70,10 @@ const SearchForm = ({ submit, initialFormValues }) => {
 							<Field
 								name="search"
 								type="text"
-								label="Search"
+								placeholder="Search"
 								component={Input}
 								className={classes.searchField}
+								label="Game Name"
 							/>
 						</Grid>
 

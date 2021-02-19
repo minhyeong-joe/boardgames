@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from "react";
-import {
-	Button,
-	Container,
-	FormLabel,
-	Grid,
-	IconButton,
-	makeStyles,
-} from "@material-ui/core";
+import { Button, Container, Grid, makeStyles } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 
 import AddIcon from "@material-ui/icons/Add";
-import SearchIcon from "@material-ui/icons/Search";
+import CachedIcon from "@material-ui/icons/Cached";
 import Input from "../../form/Input";
 import { Field, Form } from "react-final-form";
 import GameDetail from "./GameDetail";
 import RoomTable from "./RoomTable";
+import CheckBox from "../../form/CheckBox";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
-		// temp
-		border: "1px solid black",
 	},
 	createRoomBtn: {
 		backgroundColor: theme.palette.success.main,
+		marginBottom: theme.spacing(2),
 		"&:hover": {
 			backgroundColor: theme.palette.success.dark,
+		},
+	},
+	[theme.breakpoints.down("sm")]: {
+		btnGroup: {
+			justifyContent: "center",
+			marginTop: theme.spacing(1),
 		},
 	},
 }));
@@ -74,63 +73,89 @@ const SingleGame = ({ match }) => {
 	const [rooms, setRooms] = useState(ROOMS);
 
 	const onSubmit = (values) => {
-		if (values.search) {
-			setRooms(
-				ROOMS.filter((room) =>
-					room.name.toLowerCase().includes(values.search.toLowerCase())
-				)
-			);
-		} else {
-			setRooms(ROOMS);
+		if (values.search === undefined) {
+			values.search = "";
 		}
+		setRooms(
+			ROOMS.filter(
+				(room) =>
+					room.name.toLowerCase().includes(values.search.toLowerCase()) &&
+					(values.showPrivate || !room.password) &&
+					(values.showFull || room.maxOccupancy > room.numMembers)
+			)
+		);
 	};
-
-	useEffect(() => {
-		console.log(rooms);
-	}, [rooms]);
 
 	return (
 		<Container className={classes.root}>
 			<GameDetail />
-			<Grid container justify="space-between" alignItems="center">
-				<Grid item>
-					<Form onSubmit={onSubmit}>
-						{({ handleSubmit }) => (
-							<form onSubmit={handleSubmit}>
-								<Grid container alignItems="center" spacing={1}>
-									<Grid item>
-										<FormLabel>Room Name:</FormLabel>
-									</Grid>
-									<Grid item>
-										<Field
-											name="search"
-											label="Search"
-											component={Input}
-											InputProps={{
-												endAdornment: (
-													<IconButton tabIndex={-1} type="submit">
-														<SearchIcon />
-													</IconButton>
-												),
-											}}
-										/>
-									</Grid>
-								</Grid>
-							</form>
-						)}
-					</Form>
-				</Grid>
-				<Grid item>
-					<Button
-						variant="contained"
-						color="primary"
-						startIcon={<AddIcon />}
-						className={classes.createRoomBtn}
-					>
-						Create a Room
-					</Button>
-				</Grid>
-			</Grid>
+			<Form
+				onSubmit={onSubmit}
+				initialValues={{ search: "", showPrivate: true, showFull: true }}
+			>
+				{({ handleSubmit, values }) => (
+					<form onSubmit={handleSubmit}>
+						<Grid
+							container
+							justify="center"
+							alignItems="center"
+							spacing={1}
+							className={classes.formRow}
+						>
+							<Grid item xs={10} sm={10} md="auto">
+								<Field
+									name="search"
+									placeholder="Search"
+									component={Input}
+									label="Room Name"
+								/>
+							</Grid>
+							<Grid item xs={10} sm={5} md="auto">
+								<Field name="showPrivate" type="checkbox">
+									{({ input, meta }) => (
+										<CheckBox {...input} label="Show Private Room" />
+									)}
+								</Field>
+							</Grid>
+							<Grid item xs={10} sm={5} md="auto">
+								<Field name="showFull" type="checkbox">
+									{({ input, meta }) => (
+										<CheckBox {...input} label="Show Full Room" />
+									)}
+								</Field>
+							</Grid>
+						</Grid>
+						<Grid
+							container
+							justify="flex-end"
+							spacing={2}
+							className={classes.btnGroup}
+						>
+							<Grid item>
+								<Button
+									variant="contained"
+									color="primary"
+									startIcon={<CachedIcon />}
+									type="submit"
+								>
+									Refresh
+								</Button>
+							</Grid>
+							<Grid item>
+								<Button
+									variant="contained"
+									color="primary"
+									startIcon={<AddIcon />}
+									className={classes.createRoomBtn}
+								>
+									Create a Room
+								</Button>
+							</Grid>
+						</Grid>
+					</form>
+				)}
+			</Form>
+
 			<RoomTable rooms={rooms} />
 		</Container>
 	);
