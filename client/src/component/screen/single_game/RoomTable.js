@@ -13,6 +13,9 @@ import {
 } from "@material-ui/core";
 import LockIcon from "@material-ui/icons/Lock";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
+import { useDispatch, useSelector } from "react-redux";
+import { openModal } from "../../../actions";
+import { LOGIN_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -44,6 +47,8 @@ const useStyles = makeStyles((theme) => ({
 
 const RoomTable = ({ rooms }) => {
 	const classes = useStyles();
+	const dispatch = useDispatch();
+	const auth = useSelector((state) => state.auth);
 	const [order, setOrder] = useState("asc");
 	const [orderBy, setOrderBy] = useState("name");
 	const [page, setPage] = useState(0);
@@ -85,8 +90,15 @@ const RoomTable = ({ rooms }) => {
 		return stabilizedThis.map((el) => el[0]);
 	};
 
-	const onRoomClick = (id) => {
-		console.log(`Room ID ${id} Clicked`);
+	const onRoomClick = (id, isPrivate) => {
+		if (auth.isLoggedIn) {
+			if (isPrivate) {
+				console.log("Enter Password for Room");
+			}
+			console.log(`Room ID ${id} Clicked`);
+		} else {
+			dispatch(openModal(LOGIN_MODAL));
+		}
 	};
 
 	const handleChangePage = (event, newPage) => {
@@ -161,14 +173,18 @@ const RoomTable = ({ rooms }) => {
 									<TableRow
 										hover={!isRoomFull}
 										tabIndex={-1}
-										key={room.id}
+										key={room._id}
 										className={
 											isRoomFull ? classes.fullRoom : classes.availableRoom
 										}
-										onClick={isRoomFull ? null : () => onRoomClick(room.id)}
+										onClick={
+											isRoomFull
+												? null
+												: () => onRoomClick(room._id, room.isPrivate)
+										}
 									>
 										<TableCell align="center">
-											{room.password ? <LockIcon /> : <LockOpenIcon />}
+											{room.isPrivate ? <LockIcon /> : <LockOpenIcon />}
 										</TableCell>
 										<TableCell>
 											<Typography variant="body1">{room.name}</Typography>

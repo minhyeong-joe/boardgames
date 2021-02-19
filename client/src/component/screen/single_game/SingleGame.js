@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Field, Form } from "react-final-form";
+import axios from "axios";
 import { Button, Container, Grid, makeStyles } from "@material-ui/core";
-import { useDispatch } from "react-redux";
-
 import AddIcon from "@material-ui/icons/Add";
 import CachedIcon from "@material-ui/icons/Cached";
-import Input from "../../form/Input";
-import { Field, Form } from "react-final-form";
+
 import GameDetail from "./GameDetail";
 import RoomTable from "./RoomTable";
+import Input from "../../form/Input";
 import CheckBox from "../../form/CheckBox";
+import { openModal } from "../../../actions";
+import { LOGIN_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -29,71 +32,61 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-// mock-up rooms
-const ROOMS = [
-	{
-		id: "1",
-		name: "Room 1",
-		password: "123",
-		owner: "user123",
-		maxOccupancy: 5,
-		numMembers: 2,
-	},
-	{
-		id: "2",
-		name: "Room 2",
-		password: "",
-		owner: "test",
-		maxOccupancy: 4,
-		numMembers: 1,
-	},
-	{ id: "3", name: "Room 3", owner: "user", maxOccupancy: 4, numMembers: 2 },
-	{
-		id: "4",
-		name: "Room 4",
-		password: "abc",
-		owner: "billy",
-		maxOccupancy: 6,
-		numMembers: 4,
-	},
-	{
-		id: "5",
-		name: "Room 5",
-		password: "",
-		owner: "owner12",
-		maxOccupancy: 5,
-		numMembers: 5,
-	},
-];
-
 const SingleGame = ({ match }) => {
-	console.log(match.params.gameId);
 	const classes = useStyles();
+	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
-	const [rooms, setRooms] = useState(ROOMS);
+	const { gameId } = match.params;
+	const [rooms, setRooms] = useState([]);
 
-	const onSubmit = (values) => {
+	useEffect(() => {
+		console.log(window.location);
+		(async () => {
+			const { data } = await axios.get(
+				`${window.location.protocol}//${window.location.hostname}/api/rooms/${gameId}`
+			);
+			console.log(data);
+			if (data.success) {
+				setRooms(data.rooms);
+			}
+		})();
+	}, [gameId]);
+
+	const onSubmit = async (values) => {
 		if (values.search === undefined) {
 			values.search = "";
 		}
-		setRooms(
-			ROOMS.filter(
-				(room) =>
-					room.name.toLowerCase().includes(values.search.toLowerCase()) &&
-					(values.showPrivate || !room.password) &&
-					(values.showFull || room.maxOccupancy > room.numMembers)
-			)
+		const { data } = await axios.get(
+			`${window.location.protocol}//${window.location.hostname}/api/rooms/${gameId}`
 		);
+		if (data.success) {
+			setRooms(
+				data.rooms.filter(
+					(room) =>
+						room.name.toLowerCase().includes(values.search.toLowerCase()) &&
+						(values.showPrivate || !room.isPrivate) &&
+						(values.showFull || room.maxOccupancy > room.numMembers)
+				)
+			);
+		}
+	};
+
+	const onCreateRoomClick = () => {
+		if (auth.isLoggedIn) {
+			// show create new room modal
+		} else {
+			dispatch(openModal(LOGIN_MODAL));
+		}
 	};
 
 	return (
 		<Container className={classes.root}>
-			<GameDetail />
+			<GameDetail gameId={match.params.gameId} />
 			<Form
 				onSubmit={onSubmit}
 				initialValues={{ search: "", showPrivate: true, showFull: true }}
 			>
-				{({ handleSubmit, values }) => (
+				{({ handleSubmit }) => (
 					<form onSubmit={handleSubmit}>
 						<Grid
 							container
@@ -147,6 +140,7 @@ const SingleGame = ({ match }) => {
 									color="primary"
 									startIcon={<AddIcon />}
 									className={classes.createRoomBtn}
+									onClick={onCreateRoomClick}
 								>
 									Create a Room
 								</Button>

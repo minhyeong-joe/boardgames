@@ -4,6 +4,7 @@ import images from "../../../assets/image";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { FaBrain } from "react-icons/fa";
 import { GiSandsOfTime } from "react-icons/gi";
+import GAMES from "../../../games/games";
 
 const useStyles = makeStyles((theme) => ({
 	gameInfoRow: {
@@ -31,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
 		textAlign: "left",
 		width: "250px",
 	},
+	infoText: {
+		fontSize: theme.typography.body1.fontSize,
+		textTransform: "capitalize",
+	},
 	[theme.breakpoints.down("xs")]: {
 		gameInfoRow: {
 			flexDirection: "column",
@@ -41,26 +46,28 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const GameDetail = () => {
+const GameDetail = ({ gameId }) => {
 	const classes = useStyles();
+	const game = GAMES.find((game) => game.id === gameId);
+
 	return (
 		<div className={classes.gameInfoRow}>
 			<div className={classes.gameImageContainer}>
 				<img
-					src={images.boardgame1}
-					alt="boardgame"
+					src={game.image_url}
+					alt={game.name}
 					className={classes.gameImage}
 				/>
 			</div>
 			<div className={classes.gameInfo}>
-				<Typography variant="h5">Board Game Name</Typography>
+				<Typography variant="h5">{game.name}</Typography>
 				<Grid container alignItems="center" spacing={1}>
 					<Grid item>
 						<HiOutlineUserGroup size="30px" />
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							2-5
+							{game.min}-{game.max}
 						</Typography>
 					</Grid>
 				</Grid>
@@ -70,7 +77,7 @@ const GameDetail = () => {
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							Easy
+							{game.complexity}
 						</Typography>
 					</Grid>
 				</Grid>
@@ -80,7 +87,7 @@ const GameDetail = () => {
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							Medium
+							{game.duration}
 						</Typography>
 					</Grid>
 				</Grid>
