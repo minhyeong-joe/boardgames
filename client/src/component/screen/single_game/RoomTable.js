@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import {
 	makeStyles,
 	Table,
@@ -46,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const RoomTable = ({ rooms }) => {
+	const history = useHistory();
 	const classes = useStyles();
 	const dispatch = useDispatch();
 	const auth = useSelector((state) => state.auth);
@@ -96,6 +98,7 @@ const RoomTable = ({ rooms }) => {
 				console.log("Enter Password for Room");
 			}
 			console.log(`Room ID ${id} Clicked`);
+			history.push(`/room/${id}`);
 		} else {
 			dispatch(openModal(LOGIN_MODAL));
 		}

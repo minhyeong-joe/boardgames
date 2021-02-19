@@ -37,10 +37,10 @@ export const logoutUser = () => async (dispatch) => {
 };
 
 // MODAL
-export const openModal = (modalName) => {
+export const openModal = ({ modalName, data }) => {
 	return {
 		type: OPEN_MODAL,
-		payload: modalName,
+		payload: { modalName, data },
 	};
 };
 

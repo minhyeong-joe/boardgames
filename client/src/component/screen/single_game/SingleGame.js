@@ -11,7 +11,7 @@ import RoomTable from "./RoomTable";
 import Input from "../../form/Input";
 import CheckBox from "../../form/CheckBox";
 import { openModal } from "../../../actions";
-import { LOGIN_MODAL } from "../../modal/modalTypes";
+import { CREATE_ROOM_MODAL, LOGIN_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -40,12 +40,10 @@ const SingleGame = ({ match }) => {
 	const [rooms, setRooms] = useState([]);
 
 	useEffect(() => {
-		console.log(window.location);
 		(async () => {
 			const { data } = await axios.get(
 				`${window.location.protocol}//${window.location.hostname}/api/rooms/${gameId}`
 			);
-			console.log(data);
 			if (data.success) {
 				setRooms(data.rooms);
 			}
@@ -74,8 +72,14 @@ const SingleGame = ({ match }) => {
 	const onCreateRoomClick = () => {
 		if (auth.isLoggedIn) {
 			// show create new room modal
+			dispatch(
+				openModal({
+					modalName: CREATE_ROOM_MODAL,
+					data: { gameId },
+				})
+			);
 		} else {
-			dispatch(openModal(LOGIN_MODAL));
+			dispatch(openModal({ modalName: LOGIN_MODAL }));
 		}
 	};
 

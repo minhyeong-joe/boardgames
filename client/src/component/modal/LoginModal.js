@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Field } from "react-final-form";
-import {
-	Button,
-	IconButton,
-	makeStyles,
-	Snackbar,
-	Typography,
-} from "@material-ui/core";
+import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -23,7 +17,6 @@ import {
 } from "../../actions";
 import { LOGIN_MODAL } from "./modalTypes";
 import { required } from "./validation";
-import FlashMessage from "../FlashMessage";
 
 const useStyles = makeStyles((theme) => ({
 	submitBtn: {
