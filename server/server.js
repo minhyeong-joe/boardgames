@@ -1,4 +1,6 @@
 const express = require("express");
+const socketio = require("socket.io");
+const http = require("http");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -9,6 +11,13 @@ dotenv.config();
 
 // Middlewares
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server, {
+	cors: {
+		origin: "http://localhost:3000",
+		credentials: true,
+	},
+});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -51,6 +60,9 @@ const roomRoute = require("./routes/rooms");
 app.use("/api/users", userRoute);
 app.use("/api/rooms", roomRoute);
 
-app.listen(PORT, () => {
+// socketio
+require("./sockets/test")(io);
+
+server.listen(PORT, () => {
 	console.log(`Server running on Port ${PORT}`);
 });
