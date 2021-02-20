@@ -8,12 +8,13 @@ const passport = require("passport");
 const session = require("express-session");
 const dotenv = require("dotenv");
 dotenv.config();
+console.log(`Current Environment: ${process.env.NODE_ENV}`);
 
 let origin_url;
 // frontend URL in different environments
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV == "development") {
 	origin_url = "http://localhost:3000";
-} else if (process.env.NODE_ENV === "production") {
+} else if (process.env.NODE_ENV == "production") {
 	origin_url = "https://family-board-game.herokuapp.com";
 }
 
@@ -73,5 +74,4 @@ require("./sockets/test")(io);
 
 server.listen(PORT, () => {
 	console.log(`Server running on Port ${PORT}`);
-	console.log(process.env.NODE_ENV);
 });
