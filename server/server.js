@@ -9,26 +9,34 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 dotenv.config();
 
+let origin_url;
+// frontend URL in different environments
+if (process.env.NODE_ENV === "development") {
+	origin_url = "http://localhost:3000";
+} else if (process.env.NODE_ENV === "production") {
+	origin_url = "https://family-board-game.herokuapp.com";
+}
+
 // Middlewares
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
 	cors: {
-		origin: "http://localhost:3000",
+		origin: origin_url,
 		credentials: true,
 	},
 });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: origin_url, credentials: true }));
 
 app.use(
 	session({
-		secret: "secret_key",
+		secret: process.env.SESSION_SECRET_KEY,
 		resave: false,
 		saveUninitialized: true,
 		cookie: {
-			maxAge: 24 * 60 * 60 * 1000,
+			maxAge: 24 * 60 * 60 * 1000, // 24 hours
 		},
 	})
 );
@@ -65,4 +73,5 @@ require("./sockets/test")(io);
 
 server.listen(PORT, () => {
 	console.log(`Server running on Port ${PORT}`);
+	console.log(process.env.NODE_ENV);
 });
