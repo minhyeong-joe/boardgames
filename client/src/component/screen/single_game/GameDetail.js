@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
-import images from "../../../assets/image";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { FaBrain } from "react-icons/fa";
 import { GiSandsOfTime } from "react-icons/gi";

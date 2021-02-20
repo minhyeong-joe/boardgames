@@ -15,6 +15,7 @@ import CreateRoomModal from "./modal/CreateRoomModal";
 import FlashMessage from "./FlashMessage";
 
 const App = () => {
+	console.log(process.env);
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />

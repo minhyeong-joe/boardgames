@@ -1,4 +1,4 @@
-import images from "../assets/image";
+import BoardGameImage from "../assets/image/boardgame_temp.png";
 
 const GAMES = [
 	{
@@ -13,7 +13,7 @@ const GAMES = [
 	},
 	{
 		id: "2",
-		image_url: images.boardgame1,
+		image_url: BoardGameImage,
 		name: "Board Game 2",
 		min: 2,
 		max: 8,
@@ -22,7 +22,7 @@ const GAMES = [
 	},
 	{
 		id: "3",
-		image_url: images.boardgame1,
+		image_url: BoardGameImage,
 		name: "Board Game 3",
 		min: 2,
 		max: 4,
@@ -31,7 +31,7 @@ const GAMES = [
 	},
 	{
 		id: "4",
-		image_url: images.boardgame1,
+		image_url: BoardGameImage,
 		name: "Board Game 4",
 		min: 3,
 		max: 10,
@@ -40,7 +40,7 @@ const GAMES = [
 	},
 	{
 		id: "5",
-		image_url: images.boardgame1,
+		image_url: BoardGameImage,
 		name: "Board Game 5",
 		min: 4,
 		max: 8,
