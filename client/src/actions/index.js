@@ -8,7 +8,7 @@ import {
 	SHOW_FLASH,
 	CLOSE_FLASH,
 } from "./types";
-import { USER_API } from "./axios";
+import { USER_API } from "../axios";
 
 // AUTH
 export const authenticateUser = (credentials) => async (dispatch) => {

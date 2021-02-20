@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { Form, Field } from "react-final-form";
 import { useHistory } from "react-router-dom";
 import {
@@ -21,6 +20,7 @@ import { CREATE_ROOM_MODAL } from "./modalTypes";
 import { required, range, composeValidators } from "./validation";
 import Select from "../form/Select";
 import GAMES from "../../games/games";
+import { ROOM_API } from "../../axios";
 
 const useStyles = makeStyles((theme) => ({
 	createBtn: {
@@ -53,14 +53,11 @@ const CreateRoomModal = () => {
 	const game = GAMES.find((game) => game.id === modal?.data?.gameId);
 
 	const onSubmit = async (values) => {
-		const { data } = await axios.post(
-			`${window.location.protocol}//${window.location.hostname}/api/rooms/`,
-			{
-				owner: auth.userInfo.username,
-				gameId: modal.data.gameId,
-				...values,
-			}
-		);
+		const { data } = await ROOM_API.post("/", {
+			owner: auth.userInfo.username,
+			gameId: modal.data.gameId,
+			...values,
+		});
 		if (data.success) {
 			dispatch(closeModal());
 			history.push(`/room/${data.newRoom._id}`);

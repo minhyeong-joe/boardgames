@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Field, Form } from "react-final-form";
-import axios from "axios";
 import { Button, Container, Grid, makeStyles } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import CachedIcon from "@material-ui/icons/Cached";
@@ -12,6 +11,7 @@ import Input from "../../form/Input";
 import CheckBox from "../../form/CheckBox";
 import { openModal } from "../../../actions";
 import { CREATE_ROOM_MODAL, LOGIN_MODAL } from "../../modal/modalTypes";
+import { ROOM_API } from "../../../axios";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -41,9 +41,7 @@ const SingleGame = ({ match }) => {
 
 	useEffect(() => {
 		(async () => {
-			const { data } = await axios.get(
-				`${window.location.protocol}//${window.location.hostname}/api/rooms/${gameId}`
-			);
+			const { data } = await ROOM_API.get(gameId);
 			if (data.success) {
 				setRooms(data.rooms);
 			}
@@ -54,9 +52,7 @@ const SingleGame = ({ match }) => {
 		if (values.search === undefined) {
 			values.search = "";
 		}
-		const { data } = await axios.get(
-			`${window.location.protocol}//${window.location.hostname}/api/rooms/${gameId}`
-		);
+		const { data } = await ROOM_API.get(gameId);
 		if (data.success) {
 			setRooms(
 				data.rooms.filter(
