@@ -30,6 +30,11 @@ exports = module.exports = (io) => {
 		// on user create a room via create_room_modal
 		socket.on("createRoom", (payload, callback) => {
 			const roomId = uuidv4();
+			const roomnameExists = rooms.find((room) => room.name === payload.name);
+			if (roomnameExists) {
+				callback({ success: false, message: "Room name already in use" });
+				return;
+			}
 			const newRoom = {
 				...payload, // { name, password, maxOccupancy, gameId }
 				gameState: null,
@@ -38,7 +43,25 @@ exports = module.exports = (io) => {
 				members: [],
 			};
 			rooms.push(newRoom);
-			callback(roomId);
+			callback({ success: true, roomId: newRoom.id });
+		});
+
+		socket.on("requestJoinRoom", (payload, callback) => {
+			const { name, password } = payload;
+			const roomToJoin = rooms.find((room) => room.name === name);
+			// catch invalid join room requests
+			if (!roomToJoin) {
+				callback({ success: false, message: "Room does not exist" });
+				return;
+			}
+			if (roomToJoin.members.length === roomToJoin.maxOccupancy) {
+				callback({ success: false, message: "Room is already full" });
+				return;
+			}
+			if (roomToJoin.isPrivate && password !== roomToJoin.password) {
+				callback({ success: false, message: "Incorrect Password" });
+			}
+			callback({ success: true, roomId: roomToJoin.id });
 		});
 
 		// on user joining the game room
@@ -83,7 +106,7 @@ exports = module.exports = (io) => {
 const getRooms = (gameId) => {
 	return rooms
 		.filter((room) => room.gameId === gameId) // find all rooms under specific gameId
-		.map(({ password, ...rest }) => rest); // remove password from room objects
+		.map(({ password, id, ...rest }) => rest); // remove password from room objects
 };
 
 // user leaves a room (either manually or disconnecting through back navigation or browser exit)

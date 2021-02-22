@@ -41,6 +41,7 @@ const SingleGame = ({ match }) => {
 	const dispatch = useDispatch();
 	const { gameId } = match.params;
 	const [rooms, setRooms] = useState([]);
+	const [filteredRooms, setFilteredRooms] = useState([]);
 	const SOCKET_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 	const [search, setSearch] = useState("");
 	const [showPrivate, setShowPrivate] = useState(true);
@@ -67,16 +68,7 @@ const SingleGame = ({ match }) => {
 
 	useEffect(() => {
 		socket.on("loadRooms", ({ rooms }) => {
-			console.log(rooms);
-			setRooms(
-				rooms.filter(
-					(room) =>
-						(!search ||
-							room.name.toLowerCase().includes(search.toLowerCase())) &&
-						(showPrivate || !room.isPrivate) &&
-						(showFull || room.maxOccupancy >= room.members.length)
-				)
-			);
+			setRooms(rooms);
 		});
 
 		return () => {
@@ -85,7 +77,17 @@ const SingleGame = ({ match }) => {
 		};
 	}, []);
 
-	console.log(rooms);
+	useEffect(() => {
+		console.log("filter rooms");
+		setFilteredRooms(
+			rooms.filter(
+				(room) =>
+					(!search || room.name.toLowerCase().includes(search.toLowerCase())) &&
+					(showPrivate || !room.isPrivate) &&
+					(showFull || room.maxOccupancy >= room.members.length)
+			)
+		);
+	}, [search, showPrivate, showFull, rooms]);
 
 	const onCreateRoomClick = () => {
 		if (auth.isLoggedIn) {
@@ -101,6 +103,21 @@ const SingleGame = ({ match }) => {
 		}
 	};
 
+	// const onSubmit = (values) => {
+	// 	console.log(values);
+	// 	socket.emit("joinLobby", { gameId: gameId }, (rooms) =>
+	// 		setRooms(
+	// 			rooms.filter(
+	// 				(room) =>
+	// 					(!values.search ||
+	// 						room.name.toLowerCase().includes(values.search.toLowerCase())) &&
+	// 					(values.showPrivate || !room.isPrivate) &&
+	// 					(values.showFull || room.maxOccupancy >= room.members.length)
+	// 			)
+	// 		)
+	// 	);
+	// };
+
 	return (
 		<Container className={classes.root}>
 			<GameDetail gameId={match.params.gameId} />
@@ -110,7 +127,7 @@ const SingleGame = ({ match }) => {
 			>
 				{({ handleSubmit }) => (
 					<>
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmit} id="filter-form">
 							<Grid
 								container
 								justify="center"
@@ -147,7 +164,7 @@ const SingleGame = ({ match }) => {
 								spacing={2}
 								className={classes.btnGroup}
 							>
-								<Grid item>
+								{/* <Grid item>
 									<Button
 										variant="contained"
 										color="primary"
@@ -156,7 +173,7 @@ const SingleGame = ({ match }) => {
 									>
 										Refresh
 									</Button>
-								</Grid>
+								</Grid> */}
 								<Grid item>
 									<Button
 										variant="contained"
@@ -175,27 +192,27 @@ const SingleGame = ({ match }) => {
 								setSearch(values.search);
 								setShowPrivate(values.showPrivate);
 								setShowFull(values.showFull);
-								socket?.emit("joinLobby", { gameId: gameId }, (rooms) =>
-									setRooms(
-										rooms.filter(
-											(room) =>
-												(!values.search ||
-													room.name
-														.toLowerCase()
-														.includes(values.search.toLowerCase())) &&
-												(values.showPrivate || !room.isPrivate) &&
-												(values.showFull ||
-													room.maxOccupancy >= room.members.length)
-										)
-									)
-								);
+								// socket?.emit("joinLobby", { gameId: gameId }, (rooms) =>
+								// 	setRooms(
+								// 		rooms.filter(
+								// 			(room) =>
+								// 				(!values.search ||
+								// 					room.name
+								// 						.toLowerCase()
+								// 						.includes(values.search.toLowerCase())) &&
+								// 				(values.showPrivate || !room.isPrivate) &&
+								// 				(values.showFull ||
+								// 					room.maxOccupancy >= room.members.length)
+								// 		)
+								// 	)
+								// );
 							}}
 						/>
 					</>
 				)}
 			</Form>
 
-			<RoomTable rooms={rooms} />
+			<RoomTable rooms={filteredRooms} socket={socket} />
 		</Container>
 	);
 };

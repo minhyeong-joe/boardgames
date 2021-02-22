@@ -60,9 +60,16 @@ const CreateRoomModal = () => {
 				...values,
 				gameId,
 			},
-			(roomId) => {
-				dispatch(closeModal());
-				history.push(`/room/${roomId}`);
+			(response) => {
+				if (response.success) {
+					dispatch(closeModal());
+					history.push(`/room/${response.roomId}`);
+				} else {
+					setError(response.message);
+					setTimeout(() => {
+						setError(null);
+					}, 1500);
+				}
 			}
 		);
 		// const { data } = await ROOM_API.post("/", {

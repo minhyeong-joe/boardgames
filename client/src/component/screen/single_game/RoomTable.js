@@ -15,7 +15,7 @@ import {
 import LockIcon from "@material-ui/icons/Lock";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import { useDispatch, useSelector } from "react-redux";
-import { openModal } from "../../../actions";
+import { openModal, showFlash } from "../../../actions";
 import { LOGIN_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 		top: 20,
 		width: 1,
 	},
-	fullRoom: {
+	unavailableRoom: {
 		"& *": {
 			color: theme.palette.error.main,
 		},
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const RoomTable = ({ rooms }) => {
+const RoomTable = ({ rooms, socket }) => {
 	const history = useHistory();
 	const classes = useStyles();
 	const dispatch = useDispatch();
@@ -92,13 +92,34 @@ const RoomTable = ({ rooms }) => {
 		return stabilizedThis.map((el) => el[0]);
 	};
 
-	const onRoomClick = (id, isPrivate) => {
+	const onRoomClick = (roomName, isPrivate) => {
 		if (auth.isLoggedIn) {
 			if (isPrivate) {
 				console.log("Enter Password for Room");
+				// dispatch(showModal({modalName: ROOM_PASSWORD_MODAL, data: {socket, roomName}}))
+				// In modal, something like:
+				// socket.emit("requestJoinRoom", { name: roomName, password: userInput }, (response) => {
+				// 	if (response.success) {
+				// 	history.push(`/room/$response.roomId`)
+				// } else {
+				// 		setError("Incorrect Password")... settimeout etc
+				// }
+				// })
+			} else {
+				socket.emit("requestJoinRoom", { name: roomName }, (response) => {
+					if (response.success) {
+						history.push(`/room/${response.roomId}`);
+					} else {
+						dispatch(
+							showFlash({
+								message: response.message,
+								duration: 2000,
+								severity: "error",
+							})
+						);
+					}
+				});
 			}
-			console.log(`Room ID ${id} Clicked`);
-			history.push(`/room/${id}`);
 		} else {
 			dispatch(openModal({ modalName: LOGIN_MODAL }));
 		}
@@ -172,18 +193,21 @@ const RoomTable = ({ rooms }) => {
 							.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
 							.map((room, index) => {
 								const isRoomFull = room.members.length === room.maxOccupancy;
+								const isRoomPlaying = !room.gameState;
 								return (
 									<TableRow
 										hover={!isRoomFull}
 										tabIndex={-1}
-										key={room.id}
+										key={room.name}
 										className={
-											isRoomFull ? classes.fullRoom : classes.availableRoom
+											isRoomFull || isRoomPlaying
+												? classes.unavailableRoom
+												: classes.availableRoom
 										}
 										onClick={
-											isRoomFull
+											isRoomFull || isRoomPlaying
 												? null
-												: () => onRoomClick(room.id, room.isPrivate)
+												: () => onRoomClick(room.name, room.isPrivate)
 										}
 									>
 										<TableCell align="center">
