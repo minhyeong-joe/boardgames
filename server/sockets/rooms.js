@@ -71,6 +71,7 @@ exports = module.exports = (io) => {
 			const { username, userId, roomId, accessGranted } = payload;
 			const currentRoom = rooms.find((room) => room.id === roomId);
 			// catch invalid accesses such as max occupied or password bypass through direct url typing, etc.
+			// Only for direct url typing
 			if (!currentRoom) {
 				callback({ success: false, message: "Room does not exist" });
 				return;
@@ -78,6 +79,9 @@ exports = module.exports = (io) => {
 			if (currentRoom.members.length === currentRoom.maxOccupancy) {
 				callback({ success: false, message: "The room is full" });
 				return;
+			}
+			if (currentRoom.gameState) {
+				callback({ success: false, message: "A game is in progress" });
 			}
 			// add new user (check if owner) to the room
 			const isOwner = currentRoom.members.length === 0;

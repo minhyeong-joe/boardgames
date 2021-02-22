@@ -80,14 +80,20 @@ const SingleGame = ({ match }) => {
 	useEffect(() => {
 		console.log("filter rooms");
 		setFilteredRooms(
-			rooms.filter(
-				(room) =>
+			rooms.filter((room) => {
+				console.log(room);
+				return (
 					(!search || room.name.toLowerCase().includes(search.toLowerCase())) &&
 					(showPrivate || !room.isPrivate) &&
-					(showFull || room.maxOccupancy >= room.members.length)
-			)
+					(showFull || room.maxOccupancy > room.members.length)
+				);
+			})
 		);
 	}, [search, showPrivate, showFull, rooms]);
+
+	useEffect(() => {
+		console.log(filteredRooms);
+	}, [filteredRooms]);
 
 	const onCreateRoomClick = () => {
 		if (auth.isLoggedIn) {
