@@ -171,19 +171,19 @@ const RoomTable = ({ rooms }) => {
 						{stableSort(rooms, getComparator(order, orderBy))
 							.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
 							.map((room, index) => {
-								const isRoomFull = room.numMembers === room.maxOccupancy;
+								const isRoomFull = room.members.length === room.maxOccupancy;
 								return (
 									<TableRow
 										hover={!isRoomFull}
 										tabIndex={-1}
-										key={room._id}
+										key={room.id}
 										className={
 											isRoomFull ? classes.fullRoom : classes.availableRoom
 										}
 										onClick={
 											isRoomFull
 												? null
-												: () => onRoomClick(room._id, room.isPrivate)
+												: () => onRoomClick(room.id, room.isPrivate)
 										}
 									>
 										<TableCell align="center">
@@ -193,11 +193,16 @@ const RoomTable = ({ rooms }) => {
 											<Typography variant="body1">{room.name}</Typography>
 										</TableCell>
 										<TableCell align="center">
-											<Typography variant="body1">{room.owner}</Typography>
+											<Typography variant="body1">
+												{
+													room.members.filter((member) => member.isOwner)[0]
+														.username
+												}
+											</Typography>
 										</TableCell>
 										<TableCell align="center">
 											<Typography variant="body1">
-												{`${room.numMembers}/${room.maxOccupancy}`}
+												{`${room.members.length}/${room.maxOccupancy}`}
 											</Typography>
 										</TableCell>
 									</TableRow>

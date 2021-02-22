@@ -1,42 +1,48 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
 
 let socket;
 
 const Room = ({ match }) => {
-	const ENDPOINT = "localhost";
+	const history = useHistory();
+	const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 	const auth = useSelector((state) => state.auth);
 
 	useEffect(() => {
 		socket = io(ENDPOINT);
-		console.log(socket);
-
 		socket.emit(
-			"join",
+			"joinRoom",
 			{
-				username: auth.userInfo.username,
-				userId: auth.userInfo._id,
-				room: match.params.roomId,
+				username: auth?.userInfo?.username,
+				userId: auth?.userInfo?._id,
+				roomId: match.params.roomId,
 			},
-			() => {}
+			(response) => {
+				if (!response.success) {
+					console.log(response.message);
+					history.push("/");
+				}
+			}
 		);
 
 		return () => {
 			socket.off();
+			socket.close();
 		};
-	}, [
-		ENDPOINT,
-		auth.userInfo._id,
-		auth.userInfo.username,
-		match.params.roomId,
-	]);
+	}, []);
 
 	useEffect(() => {
 		socket.on("message", (message) => {
 			console.log(message);
 		});
-	});
+
+		return () => {
+			socket.off();
+			socket.close();
+		};
+	}, []);
 
 	return <div>Room</div>;
 };

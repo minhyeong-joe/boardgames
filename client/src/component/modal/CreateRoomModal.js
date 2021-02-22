@@ -53,15 +53,27 @@ const CreateRoomModal = () => {
 	const game = GAMES.find((game) => game.id === modal?.data?.gameId);
 
 	const onSubmit = async (values) => {
-		const { data } = await ROOM_API.post("/", {
-			owner: auth.userInfo.username,
-			gameId: modal.data.gameId,
-			...values,
-		});
-		if (data.success) {
-			dispatch(closeModal());
-			history.push(`/room/${data.newRoom._id}`);
-		}
+		const { gameId, socket } = modal.data;
+		socket.emit(
+			"createRoom",
+			{
+				...values,
+				gameId,
+			},
+			(roomId) => {
+				dispatch(closeModal());
+				history.push(`/room/${roomId}`);
+			}
+		);
+		// const { data } = await ROOM_API.post("/", {
+		// 	owner: auth.userInfo.username,
+		// 	gameId: modal.data.gameId,
+		// 	...values,
+		// });
+		// if (data.success) {
+		// dispatch(closeModal());
+		// history.push(`/room/${data.newRoom._id}`);
+		// }
 	};
 
 	const createOption = (min, max) => {

@@ -43,7 +43,7 @@ const Header = () => {
 	// debugger for auth
 	useEffect(() => {
 		console.log(auth);
-	}, [auth]);
+	}, []);
 
 	const handleModalOpen = () => {
 		dispatch(openModal({ modalName: LOGIN_MODAL }));

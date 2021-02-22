@@ -8,7 +8,7 @@
 
 exports = module.exports = (io) => {
 	io.sockets.on("connection", (socket) => {
-		console.log("We have a new connection");
+		console.log("We have a new connection at test.js");
 		socket.on("join", ({ username, userId, room }, callback) => {
 			// const user = addUser({ username, userId, room });
 

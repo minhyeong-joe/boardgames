@@ -16,7 +16,7 @@ import {
 	openModal,
 	showFlash,
 } from "../../actions";
-import { SIGNUP_MODAL } from "./modalTypes";
+import { LOGIN_MODAL, SIGNUP_MODAL } from "./modalTypes";
 import { required, range, matching, composeValidators } from "./validation";
 
 const useStyles = makeStyles((theme) => ({
@@ -139,7 +139,7 @@ const SignUpModal = () => {
 				Already registered?{" "}
 				<span
 					className={classes.link}
-					onClick={() => dispatch(openModal("LoginModal"))}
+					onClick={() => dispatch(openModal({ modalName: LOGIN_MODAL }))}
 				>
 					Log-In Now
 				</span>
