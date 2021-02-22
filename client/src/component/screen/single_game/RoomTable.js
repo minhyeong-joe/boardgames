@@ -16,7 +16,7 @@ import LockIcon from "@material-ui/icons/Lock";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal, showFlash } from "../../../actions";
-import { LOGIN_MODAL } from "../../modal/modalTypes";
+import { LOGIN_MODAL, ROOM_PASSWORD_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -96,15 +96,12 @@ const RoomTable = ({ rooms, socket }) => {
 		if (auth.isLoggedIn) {
 			if (isPrivate) {
 				console.log("Enter Password for Room");
-				// dispatch(showModal({modalName: ROOM_PASSWORD_MODAL, data: {socket, roomName}}))
-				// In modal, something like:
-				// socket.emit("requestJoinRoom", { name: roomName, password: userInput }, (response) => {
-				// 	if (response.success) {
-				// 	history.push(`/room/$response.roomId`)
-				// } else {
-				// 		setError("Incorrect Password")... settimeout etc
-				// }
-				// })
+				dispatch(
+					openModal({
+						modalName: ROOM_PASSWORD_MODAL,
+						data: { socket, roomName },
+					})
+				);
 			} else {
 				socket.emit("requestJoinRoom", { name: roomName }, (response) => {
 					if (response.success) {
@@ -193,7 +190,7 @@ const RoomTable = ({ rooms, socket }) => {
 							.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
 							.map((room, index) => {
 								const isRoomFull = room.members.length === room.maxOccupancy;
-								const isRoomPlaying = !room.gameState;
+								const isRoomPlaying = Boolean(room.gameState);
 								return (
 									<TableRow
 										hover={!isRoomFull}

@@ -48,6 +48,7 @@ exports = module.exports = (io) => {
 
 		socket.on("requestJoinRoom", (payload, callback) => {
 			const { name, password } = payload;
+			console.log(payload);
 			const roomToJoin = rooms.find((room) => room.name === name);
 			// catch invalid join room requests
 			if (!roomToJoin) {

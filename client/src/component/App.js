@@ -12,6 +12,7 @@ import Room from "./screen/single_room/Room";
 import LoginModal from "./modal/LoginModal";
 import SignUpModal from "./modal/SignUpModal";
 import CreateRoomModal from "./modal/CreateRoomModal";
+import RoomPasswordModal from "./modal/RoomPasswordModal";
 import FlashMessage from "./FlashMessage";
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
 				<LoginModal />
 				<SignUpModal />
 				<CreateRoomModal />
+				<RoomPasswordModal />
 				{/* PAGES */}
 				<Route path="/" exact component={Home} />
 				<Route path="/game/:gameId" exact component={SingleGame} />
