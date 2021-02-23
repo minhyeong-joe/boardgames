@@ -5,7 +5,7 @@ import {
 	IconButton,
 	makeStyles,
 } from "@material-ui/core";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
@@ -59,64 +59,79 @@ const Room = ({ match }) => {
 	const ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
+	const [room, setRoom] = useState(null);
 
-	// useEffect(() => {
-	// 	socket = io(ENDPOINT);
-	// 	if (auth.isLoggedIn) {
-	// 		dispatch(closeModal());
-	// 		socket.emit(
-	// 			"joinRoom",
-	// 			{
-	// 				username: auth.userInfo.username,
-	// 				userId: auth.userInfo?._id,
-	// 				roomId: match.params.roomId,
-	// 			},
-	// 			(response) => {
-	// 				if (!response.success) {
-	// 					dispatch(
-	// 						showFlash({
-	// 							message: response.message,
-	// 							duration: 1500,
-	// 							severity: "error",
-	// 						})
-	// 					);
-	// 					history.push("/");
-	// 				}
-	// 			}
-	// 		);
-	// 	} else {
-	// 		dispatch(openModal({ modalName: LOGIN_MODAL }));
-	// 	}
+	useEffect(() => {
+		socket = io(ENDPOINT);
+		if (auth.isLoggedIn) {
+			dispatch(closeModal());
+			socket.emit(
+				"joinRoom",
+				{
+					username: auth.userInfo.username,
+					userId: auth.userInfo?._id,
+					roomId: match.params.roomId,
+				},
+				(response) => {
+					if (!response.success) {
+						dispatch(
+							showFlash({
+								message: response.message,
+								duration: 1500,
+								severity: "error",
+							})
+						);
+						history.push("/");
+					} else {
+						setRoom(response.room);
+					}
+				}
+			);
+		} else {
+			dispatch(openModal({ modalName: LOGIN_MODAL }));
+		}
 
-	// 	return () => {
-	// 		socket.off();
-	// 		socket.close();
-	// 	};
-	// }, [auth]);
+		return () => {
+			socket.off();
+			socket.close();
+		};
+	}, [auth]);
 
-	// useEffect(() => {
-	// 	socket.on("message", (message) => {
-	// 		console.log(message);
-	// 	});
+	useEffect(() => {
+		socket.on("userJoinsRoom", ({ room }) => {
+			setRoom(room);
+		});
 
-	// 	return () => {
-	// 		socket.off();
-	// 		socket.close();
-	// 	};
-	// }, []);
+		socket.on("userExitsRoom", ({ room }) => {
+			setRoom(room);
+		});
+
+		return () => {
+			socket.off();
+			socket.close();
+		};
+	}, []);
+
+	const onLeaveClick = () => {
+		history.push(`/game/${room.gameId}`);
+	};
 
 	return (
 		<Container className={classes.root}>
 			<Grid container spacing={2} alignItems="stretch">
 				<Grid item xs={12} sm="auto" className={classes.sidebarGrid}>
-					<UserList />
-					<Button variant="contained" className={classes.leaveBtn}>
+					<UserList room={room} socket={socket} />
+					<Button
+						variant="contained"
+						className={classes.leaveBtn}
+						onClick={onLeaveClick}
+					>
 						Leave Room
 					</Button>
-					<ChatLog />
+					<ChatLog room={room} socket={socket} />
 				</Grid>
 				<Grid item xs={12} sm className={classes.gameAreaGrid}>
-					<GameArea />
+					<GameArea room={room} socket={socket} />
 				</Grid>
 			</Grid>
 		</Container>

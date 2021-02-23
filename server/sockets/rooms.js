@@ -82,6 +82,7 @@ exports = module.exports = (io) => {
 			}
 			if (currentRoom.gameState) {
 				callback({ success: false, message: "A game is in progress" });
+				return;
 			}
 			// add new user (check if owner) to the room
 			const isOwner = currentRoom.members.length === 0;
@@ -93,10 +94,21 @@ exports = module.exports = (io) => {
 			});
 			// make a key pair of {socket id: room id}
 			userRooms[socket.id] = roomId;
-			callback({ success: true });
+			// join the user to socket room
+			socket.join(roomId);
+			callback({ success: true, room: currentRoom });
 			socket.broadcast
 				.to(`lobby-${currentRoom.gameId}`)
 				.emit("loadRooms", { rooms: getRooms(currentRoom.gameId) });
+			socket.broadcast.to(roomId).emit("userJoinsRoom", { room: currentRoom });
+		});
+
+		// on user send message
+		socket.on("sendMessage", (payload) => {
+			const { senderId, sendername, content } = payload;
+			// find the room this user is in
+			const roomId = userRooms[socket.id];
+			io.in(roomId).emit("message", { senderId, sendername, content });
 		});
 
 		socket.on("disconnect", () => {
@@ -126,6 +138,7 @@ const userExit = (socket) => {
 		);
 		// remove {socket id: room id} pair
 		delete userRooms[socket.id];
+		socket.leave(roomId);
 		// if everyone leaves, destroy room
 		if (room.members.length === 0) {
 			rooms = rooms.filter((room) => room.id !== roomId);
@@ -136,5 +149,6 @@ const userExit = (socket) => {
 		socket.broadcast.to(`lobby-${room.gameId}`).emit("loadRooms", {
 			rooms: getRooms(room.gameId),
 		});
+		socket.broadcast.to(roomId).emit("userExitsRoom", { room });
 	}
 };

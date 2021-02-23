@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
 	Grid,
 	makeStyles,
@@ -49,34 +49,28 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const UserList = () => {
+const UserList = ({ room, socket }) => {
 	const classes = useStyles();
+
 	return (
 		<div className={classes.root}>
-			<MenuItem>
-				<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-					Owner
-					<FaCrown className={classes.crown} />
-					<img src={FirstIcon} className={classes.firstIcon} alt="first" />
-				</Typography>
-			</MenuItem>
-			<MenuItem>
-				<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-					user123
-				</Typography>
-			</MenuItem>
-			<MenuItem>
-				<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-					testuser
-				</Typography>
-			</MenuItem>
-			<MenuItem>
-				<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-					abcdefghijklmno
-					<FaCrown className={classes.crown} />
-					<img src={FirstIcon} className={classes.firstIcon} alt="first" />
-				</Typography>
-			</MenuItem>
+			{room?.members.map((member) => {
+				return (
+					<MenuItem key={member.userId}>
+						<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
+							{member.username}
+							{member.isOwner ? <FaCrown className={classes.crown} /> : null}
+							{member.isTurn ? (
+								<img
+									src={FirstIcon}
+									className={classes.firstIcon}
+									alt="first"
+								/>
+							) : null}
+						</Typography>
+					</MenuItem>
+				);
+			})}
 		</div>
 	);
 };
