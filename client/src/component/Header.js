@@ -78,6 +78,9 @@ const Header = () => {
 						<IconButton onClick={handleMenuOpen}>
 							<AccountCircleIcon fontSize="large" />
 						</IconButton>
+						<Typography variant="body1" color="textPrimary">
+							{auth.userInfo.username}
+						</Typography>
 						<Menu
 							anchorEl={anchorEl}
 							keepMounted
