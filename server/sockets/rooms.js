@@ -104,7 +104,15 @@ exports = module.exports = (io) => {
 				.to(`lobby-${currentRoom.gameId}`)
 				.emit("loadRooms", { rooms: getRooms(currentRoom.gameId) });
 			// update room info in the room
-			socket.broadcast.to(roomId).emit("userJoinsRoom", newMember);
+			socket.broadcast.to(roomId).emit("userJoinsRoom", { room: currentRoom });
+			socket.emit("log", {
+				timestamp: Date.now(),
+				message: "Welcome to the room",
+			});
+			socket.broadcast.to(roomId).emit("log", {
+				timestamp: Date.now(),
+				message: `${newMember.username} has joined the room`,
+			});
 		});
 
 		// on user send message
@@ -147,6 +155,9 @@ const userExit = (socket) => {
 				room.members[playerIndex + 1].isTurn = true;
 			}
 		}
+		const username = room.members.find(
+			(member) => member.socketId === socket.id
+		).username;
 		// remove user from the room
 		room.members = room.members.filter(
 			(member) => member.socketId !== socket.id
@@ -164,6 +175,10 @@ const userExit = (socket) => {
 		socket.broadcast.to(`lobby-${room.gameId}`).emit("loadRooms", {
 			rooms: getRooms(room.gameId),
 		});
-		socket.broadcast.to(roomId).emit("userExitsRoom", socket.id);
+		socket.broadcast.to(roomId).emit("userExitsRoom", { room });
+		socket.broadcast.to(roomId).emit("log", {
+			timestamp: Date.now(),
+			message: `${username} left the room`,
+		});
 	}
 };
