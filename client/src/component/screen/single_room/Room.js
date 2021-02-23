@@ -57,9 +57,9 @@ const Room = ({ match }) => {
 	const [room, setRoom] = useState(null);
 
 	useEffect(() => {
-		socket = io(ENDPOINT);
 		if (auth.isLoggedIn) {
 			dispatch(closeModal());
+			socket = io(ENDPOINT);
 			socket.emit(
 				"joinRoom",
 				{
@@ -82,33 +82,31 @@ const Room = ({ match }) => {
 					}
 				}
 			);
+
+			socket.on("userJoinsRoom", ({ room }) => {
+				setRoom(room);
+			});
+
+			socket.on("userExitsRoom", ({ room }) => {
+				setRoom(room);
+			});
 		} else {
+			setRoom(null);
 			dispatch(openModal({ modalName: LOGIN_MODAL }));
 		}
 
 		return () => {
-			socket.off();
-			socket.close();
+			socket?.off();
+			socket?.close();
 		};
 	}, [auth]);
 
-	useEffect(() => {
-		socket.on("userJoinsRoom", ({ room }) => {
-			setRoom(room);
-		});
-
-		socket.on("userExitsRoom", ({ room }) => {
-			setRoom(room);
-		});
-
-		return () => {
-			socket.off();
-			socket.close();
-		};
-	}, []);
-
 	const onLeaveClick = () => {
-		history.push(`/game/${room.gameId}`);
+		if (!auth.isLoggedIn) {
+			history.push("/");
+		} else {
+			history.push(`/game/${room.gameId}`);
+		}
 	};
 
 	return (

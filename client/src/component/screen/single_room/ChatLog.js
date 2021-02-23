@@ -12,9 +12,11 @@ import {
 	Typography,
 } from "@material-ui/core";
 import { AiOutlineSend } from "react-icons/ai";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useImmer } from "use-immer";
 import moment from "moment";
+import { openModal } from "../../../actions";
+import { LOGIN_MODAL } from "../../modal/modalTypes";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -93,6 +95,7 @@ const TabPanel = (props) => {
 const ChatLog = ({ socket }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
+	const dispatch = useDispatch();
 	const [tab, setTab] = useState(0);
 	const [messages, setMessages] = useImmer([]);
 	const [logs, setLogs] = useImmer([]);
@@ -121,11 +124,7 @@ const ChatLog = ({ socket }) => {
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [tab]);
-
-	useEffect(() => {
-		scrollToBottom();
-	}, [autoscroll]);
+	}, [tab, autoscroll]);
 
 	const handleTabChange = (e, newVal) => {
 		setTab(newVal);
@@ -145,12 +144,16 @@ const ChatLog = ({ socket }) => {
 	};
 
 	const sendMessage = () => {
-		socket.emit("sendMessage", {
-			senderId: auth.userInfo._id,
-			sendername: auth.userInfo.username,
-			content: input,
-		});
-		setInput("");
+		if (auth.isLoggedIn) {
+			socket.emit("sendMessage", {
+				senderId: auth.userInfo._id,
+				sendername: auth.userInfo.username,
+				content: input,
+			});
+			setInput("");
+		} else {
+			dispatch(openModal({ modalName: LOGIN_MODAL }));
+		}
 	};
 
 	const handleSwitchCheck = (e) => {
@@ -176,6 +179,7 @@ const ChatLog = ({ socket }) => {
 			<TabPanel value={tab} index={0}>
 				<div className={classes.messages} id="messages">
 					{messages &&
+						auth.isLoggedIn &&
 						messages.map((message, index) => {
 							const isMyMessage = auth.userInfo._id === message.senderId;
 							return (
@@ -232,6 +236,7 @@ const ChatLog = ({ socket }) => {
 			<TabPanel value={tab} index={1}>
 				<div className={classes.logs} id="messages">
 					{logs &&
+						auth.isLoggedIn &&
 						logs.map((log) => {
 							return (
 								<Typography variant="body2" key={log.timestamp}>

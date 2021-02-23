@@ -193,6 +193,9 @@ const RoomTable = ({ rooms, socket }) => {
 							.map((room, index) => {
 								const isRoomFull = room.members.length === room.maxOccupancy;
 								const isRoomPlaying = Boolean(room.gameState);
+								if (!room || room.members.length === 0) {
+									return null;
+								}
 								return (
 									<TableRow
 										hover={!isRoomFull}
