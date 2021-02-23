@@ -38,11 +38,6 @@ const Header = () => {
 	// on refresh, the redux store will get updated from session
 	useEffect(() => {
 		dispatch(getUserInfo());
-	}, [dispatch]);
-
-	// debugger for auth
-	useEffect(() => {
-		console.log(auth);
 	}, []);
 
 	const handleModalOpen = () => {
