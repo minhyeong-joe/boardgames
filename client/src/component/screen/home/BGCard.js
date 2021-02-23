@@ -37,22 +37,22 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const BGCard = ({ bg }) => {
+const BGCard = ({ boardgame }) => {
 	const classes = useStyles();
 
 	return (
 		<Card raised className={classes.card}>
-			<Link to={`/game/${bg.id}`}>
+			<Link to={`/game/${boardgame.id}`}>
 				<CardMedia
-					image={bg.image_url}
-					title={bg.name}
+					image={boardgame.image_url}
+					title={boardgame.name}
 					className={classes.image}
 				/>
 			</Link>
 			<CardContent className={classes.cardBody}>
-				<Link to={`/game/${bg.id}`} className={classes.link}>
+				<Link to={`/game/${boardgame.id}`} className={classes.link}>
 					<Typography variant="body1" className={classes.gameTitle}>
-						{bg.name}
+						{boardgame.name}
 					</Typography>
 				</Link>
 				<Grid container alignItems="center" spacing={1}>
@@ -61,7 +61,7 @@ const BGCard = ({ bg }) => {
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							{bg.min}-{bg.max}
+							{boardgame.min}-{boardgame.max}
 						</Typography>
 					</Grid>
 				</Grid>
@@ -71,7 +71,7 @@ const BGCard = ({ bg }) => {
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							{bg.complexity}
+							{boardgame.complexity}
 						</Typography>
 					</Grid>
 				</Grid>
@@ -81,7 +81,7 @@ const BGCard = ({ bg }) => {
 					</Grid>
 					<Grid item xs>
 						<Typography variant="subtitle1" className={classes.infoText}>
-							{bg.duration}
+							{boardgame.duration}
 						</Typography>
 					</Grid>
 				</Grid>

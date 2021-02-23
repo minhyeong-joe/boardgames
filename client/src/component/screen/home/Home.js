@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, makeStyles } from "@material-ui/core";
 import SearchForm from "./SearchForm";
 import BoardGameList from "./BoardGameList";
+
+import boardGames from "../../../games/games";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -29,6 +31,29 @@ const DEFAULT_FILTER = {
 const Home = () => {
 	const classes = useStyles();
 	const [filter, setFilter] = useState(DEFAULT_FILTER);
+	const [filteredBoardGames, setFilteredBoardGames] = useState([]);
+
+	useEffect(() => {
+		setFilteredBoardGames(
+			boardGames.filter(
+				(boardgame) =>
+					(!filter.search ||
+						boardgame.name
+							.toLowerCase()
+							.includes(filter.search.toLowerCase())) &&
+					(filter.partySize === "any" ||
+						(filter.partySize >= boardgame.min &&
+							filter.partySize <= boardgame.max)) &&
+					(filter.complexity === "any" ||
+						filter.complexity === boardgame.complexity) &&
+					(filter.duration === "any" || filter.duration === boardgame.duration)
+			)
+		);
+
+		return () => {
+			// cleanup
+		};
+	}, [filter]);
 
 	const handleFilterChange = (newFilter) => {
 		setFilter(newFilter);
@@ -41,7 +66,7 @@ const Home = () => {
 				initialFormValues={DEFAULT_FILTER}
 			/>
 			<hr className={classes.hr} />
-			<BoardGameList filter={filter} />
+			<BoardGameList boardGames={filteredBoardGames} />
 		</Container>
 	);
 };

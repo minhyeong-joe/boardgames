@@ -18,25 +18,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const BoardGameList = ({ filter }) => {
+const BoardGameList = ({ boardGames }) => {
 	const classes = useStyles();
-	const [boardGames, _] = useState(GAMES);
-	const [filteredBoardGames, setFilteredBoardGames] = useState(boardGames);
-
-	useEffect(() => {
-		setFilteredBoardGames(
-			boardGames.filter(
-				(bg) =>
-					(!filter.search ||
-						bg.name.toLowerCase().includes(filter.search.toLowerCase())) &&
-					(filter.partySize === "any" ||
-						(filter.partySize >= bg.min && filter.partySize <= bg.max)) &&
-					(filter.complexity === "any" ||
-						filter.complexity === bg.complexity) &&
-					(filter.duration === "any" || filter.duration === bg.duration)
-			)
-		);
-	}, [boardGames, filter]);
 
 	return (
 		<Grid
@@ -46,10 +29,10 @@ const BoardGameList = ({ filter }) => {
 			spacing={2}
 			className={classes.container}
 		>
-			{filteredBoardGames.length > 0 ? (
-				filteredBoardGames.map((bg) => (
-					<Grid key={bg.id} item xs={12} sm={6} md={3}>
-						<BGCard bg={bg} />
+			{boardGames.length > 0 ? (
+				boardGames.map((boardgame) => (
+					<Grid key={boardgame.id} item xs={12} sm={6} md={3}>
+						<BGCard boardgame={boardgame} />
 					</Grid>
 				))
 			) : (
