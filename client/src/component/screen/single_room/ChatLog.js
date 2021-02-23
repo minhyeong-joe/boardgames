@@ -50,6 +50,19 @@ const useStyles = makeStyles((theme) => ({
 			outline: "1px solid slategray",
 		},
 	},
+	myMessage: {
+		backgroundColor: theme.palette.info.light,
+		color: theme.palette.info.contrastText,
+		marginLeft: "12%",
+		borderRadius: "12px",
+		marginBottom: theme.spacing(1),
+	},
+	userMessage: {
+		backgroundColor: theme.palette.grey[500],
+		marginRight: "12%",
+		borderRadius: "12px",
+		marginBottom: theme.spacing(1),
+	},
 	[theme.breakpoints.down("xs")]: {
 		root: {
 			width: "100%",
@@ -91,31 +104,46 @@ const ChatLog = () => {
 			</AppBar>
 			<TabPanel value={tab} index={0}>
 				<div className={classes.messages}>
-					sdcjkf csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs
-					ajdklcsajdklcsajdklcsajdklcs ajdklcsajd klcsajdklcsajdklc
-					sajdklcsajdklcsajdklc sajdklcsajdklcsajdklcsa
-					jdklcsajdklcsajdklcsajdkl csajdklcsajdklcsajdklcsajd kl cjsakdljk
-					sdcjkf csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf
-					csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl
-					casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld
-					csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs
+					<Box p={1} className={classes.myMessage}>
+						<Typography variant="body2">
+							Hello, my name is Billy Joe. Welcome!!!!!!!!!!!!!!!
+						</Typography>
+					</Box>
+					<Box p={1} className={classes.userMessage}>
+						<Typography variant="subtitle1">user123:</Typography>
+						<Typography variant="body2">Hello, Good to see you!</Typography>
+					</Box>
+					<Box p={1} className={classes.userMessage}>
+						<Typography variant="subtitle1">user123:</Typography>
+						<Typography variant="body2">Hello, Good to see you!</Typography>
+					</Box>
+					<Box p={1} className={classes.userMessage}>
+						<Typography variant="subtitle1">user123:</Typography>
+						<Typography variant="body2">Hello, Good to see you!</Typography>
+					</Box>
+					<Box p={1} className={classes.myMessage}>
+						<Typography variant="body2">
+							Hello, my name is Billy Joe. Welcome!!!!!!!!!!!!!!!
+						</Typography>
+					</Box>
+					<Box p={1} className={classes.myMessage}>
+						<Typography variant="body2">
+							Hello, my name is Billy Joe. Welcome!!!!!!!!!!!!!!!
+						</Typography>
+					</Box>
+					<Box p={1} className={classes.myMessage}>
+						<Typography variant="body2">
+							Hello, my name is Billy Joe. Welcome!!!!!!!!!!!!!!!
+						</Typography>
+					</Box>
+					<Box p={1} className={classes.userMessage}>
+						<Typography variant="subtitle1">user123:</Typography>
+						<Typography variant="body2">Hello, Good to see you!</Typography>
+					</Box>
+					<Box p={1} className={classes.userMessage}>
+						<Typography variant="subtitle1">user123:</Typography>
+						<Typography variant="body2">Hello, Good to see you!</Typography>
+					</Box>
 				</div>
 				<TextField
 					variant="outlined"
@@ -137,31 +165,42 @@ const ChatLog = () => {
 			</TabPanel>
 			<TabPanel value={tab} index={1}>
 				<div className={classes.logs}>
-					sdcjkf csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs
-					ajdklcsajdklcsajdklcsajdklcs ajdklcsajd klcsajdklcsajdklc
-					sajdklcsajdklcsajdklc sajdklcsajdklcsajdklcsa
-					jdklcsajdklcsajdklcsajdkl csajdklcsajdklcsajdklcsajd kl cjsakdljk
-					sdcjkf csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf
-					csajkl casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl
-					casjkld csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld
-					csajkld csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs sdcjkf csajkl casjkld csajkld
-					csajdklcsajdklcsajdklcsajdklcs
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
+					<Typography variant="body2">
+						[15:23:33] Event Blah blah blah blah blah blah
+					</Typography>
 				</div>
 			</TabPanel>
 		</div>
