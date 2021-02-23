@@ -49,28 +49,29 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const UserList = ({ room, socket }) => {
+const UserList = ({ members }) => {
 	const classes = useStyles();
 
 	return (
 		<div className={classes.root}>
-			{room?.members.map((member) => {
-				return (
-					<MenuItem key={member.userId}>
-						<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-							{member.username}
-							{member.isOwner ? <FaCrown className={classes.crown} /> : null}
-							{member.isTurn ? (
-								<img
-									src={FirstIcon}
-									className={classes.firstIcon}
-									alt="first"
-								/>
-							) : null}
-						</Typography>
-					</MenuItem>
-				);
-			})}
+			{members &&
+				members.map((member) => {
+					return (
+						<MenuItem key={member.userId}>
+							<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
+								{member.username}
+								{member.isOwner ? <FaCrown className={classes.crown} /> : null}
+								{member.isTurn ? (
+									<img
+										src={FirstIcon}
+										className={classes.firstIcon}
+										alt="first"
+									/>
+								) : null}
+							</Typography>
+						</MenuItem>
+					);
+				})}
 		</div>
 	);
 };

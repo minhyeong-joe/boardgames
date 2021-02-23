@@ -1,14 +1,9 @@
-import {
-	Button,
-	Container,
-	Grid,
-	IconButton,
-	makeStyles,
-} from "@material-ui/core";
+import { Button, Container, Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
+
 import { closeModal, openModal, showFlash } from "../../../actions";
 import { LOGIN_MODAL } from "../../modal/modalTypes";
 import ChatLog from "./ChatLog";
@@ -120,7 +115,7 @@ const Room = ({ match }) => {
 		<Container className={classes.root}>
 			<Grid container spacing={2} alignItems="stretch">
 				<Grid item xs={12} sm="auto" className={classes.sidebarGrid}>
-					<UserList room={room} socket={socket} />
+					<UserList members={room?.members} />
 					<Button
 						variant="contained"
 						className={classes.leaveBtn}

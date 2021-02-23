@@ -14,6 +14,7 @@ import {
 import { AiOutlineSend } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { useImmer } from "use-immer";
+import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -106,10 +107,25 @@ const ChatLog = ({ socket }) => {
 			scrollToBottom();
 		});
 
+		socket?.on("log", (log) => {
+			setLogs((logs) => {
+				return [...logs, log];
+			});
+			scrollToBottom();
+		});
+
 		return () => {
 			socket?.off();
 		};
-	}, [socket, setMessages, autoscroll]);
+	}, [socket, setMessages, setLogs, autoscroll]);
+
+	useEffect(() => {
+		scrollToBottom();
+	}, [tab]);
+
+	useEffect(() => {
+		scrollToBottom();
+	}, [autoscroll]);
 
 	const handleTabChange = (e, newVal) => {
 		setTab(newVal);
@@ -137,6 +153,10 @@ const ChatLog = ({ socket }) => {
 		setInput("");
 	};
 
+	const handleSwitchCheck = (e) => {
+		setAutoscroll(e.target.checked);
+	};
+
 	const scrollToBottom = () => {
 		if (autoscroll) {
 			document.getElementById("messages").scrollTop = document.getElementById(
@@ -155,27 +175,28 @@ const ChatLog = ({ socket }) => {
 			</AppBar>
 			<TabPanel value={tab} index={0}>
 				<div className={classes.messages} id="messages">
-					{messages?.map((message, index) => {
-						const isMyMessage = auth.userInfo._id === message.senderId;
-						return (
-							<Box
-								p={1}
-								className={
-									isMyMessage ? classes.myMessage : classes.userMessage
-								}
-								key={index}
-							>
-								<Typography variant="body2" component={"span"}>
-									{isMyMessage ? null : (
-										<Typography variant="subtitle1">
-											{message.sendername}:
-										</Typography>
-									)}
-									{message.content}
-								</Typography>
-							</Box>
-						);
-					})}
+					{messages &&
+						messages.map((message, index) => {
+							const isMyMessage = auth.userInfo._id === message.senderId;
+							return (
+								<Box
+									p={1}
+									className={
+										isMyMessage ? classes.myMessage : classes.userMessage
+									}
+									key={index}
+								>
+									<Typography variant="body2" component={"span"}>
+										{isMyMessage ? null : (
+											<Typography variant="subtitle1">
+												{message.sendername}:
+											</Typography>
+										)}
+										{message.content}
+									</Typography>
+								</Box>
+							);
+						})}
 				</div>
 				<div style={{ float: "left", clear: "both" }} />
 				<TextField
@@ -205,62 +226,26 @@ const ChatLog = ({ socket }) => {
 				/>
 				<FormControlLabel
 					label="Auto-scroll"
-					control={
-						<Switch
-							checked={autoscroll}
-							onChange={(e) => {
-								setAutoscroll(e.target.checked);
-								if (e.target.checked) {
-									document.getElementById(
-										"messages"
-									).scrollTop = document.getElementById(
-										"messages"
-									).scrollHeight;
-								}
-							}}
-						/>
-					}
+					control={<Switch checked={autoscroll} onChange={handleSwitchCheck} />}
 				/>
 			</TabPanel>
 			<TabPanel value={tab} index={1}>
-				<div className={classes.logs}>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
-					<Typography variant="body2">
-						[15:23:33] Event Blah blah blah blah blah blah
-					</Typography>
+				<div className={classes.logs} id="messages">
+					{logs &&
+						logs.map((log) => {
+							return (
+								<Typography variant="body2" key={log.timestamp}>
+									{`[${moment(log.timestamp).format("HH:mm:ss")}] ${
+										log.message
+									}`}
+								</Typography>
+							);
+						})}
 				</div>
+				<FormControlLabel
+					label="Auto-scroll"
+					control={<Switch checked={autoscroll} onChange={handleSwitchCheck} />}
+				/>
 			</TabPanel>
 		</div>
 	);
