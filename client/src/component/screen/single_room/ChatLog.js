@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	AppBar,
 	Box,
-	FormControl,
 	FormControlLabel,
-	Grid,
 	IconButton,
 	makeStyles,
 	Switch,
@@ -16,7 +14,6 @@ import {
 import { AiOutlineSend } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { useImmer } from "use-immer";
-import CheckBox from "../../form/CheckBox";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -141,7 +138,6 @@ const ChatLog = ({ socket }) => {
 	};
 
 	const scrollToBottom = () => {
-		console.log(autoscroll);
 		if (autoscroll) {
 			document.getElementById("messages").scrollTop = document.getElementById(
 				"messages"

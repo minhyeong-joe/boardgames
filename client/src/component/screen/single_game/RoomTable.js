@@ -217,10 +217,7 @@ const RoomTable = ({ rooms, socket }) => {
 										</TableCell>
 										<TableCell align="center">
 											<Typography variant="body1">
-												{
-													room.members.filter((member) => member.isOwner)[0]
-														.username
-												}
+												{room.members.find((member) => member.isOwner).username}
 											</Typography>
 										</TableCell>
 										<TableCell align="center">

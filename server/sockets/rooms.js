@@ -48,7 +48,6 @@ exports = module.exports = (io) => {
 
 		socket.on("requestJoinRoom", (payload, callback) => {
 			const { name, password } = payload;
-			console.log(payload);
 			const roomToJoin = rooms.find((room) => room.name === name);
 			// catch invalid join room requests
 			if (!roomToJoin) {
@@ -61,6 +60,7 @@ exports = module.exports = (io) => {
 			}
 			if (roomToJoin.isPrivate && password !== roomToJoin.password) {
 				callback({ success: false, message: "Incorrect Password" });
+				return;
 			}
 			callback({ success: true, roomId: roomToJoin.id });
 		});
@@ -68,7 +68,7 @@ exports = module.exports = (io) => {
 		// on user joining the game room
 		// Note: after user creates a room, he/she will be redirected to the room and thus "joinRoom" and be added as the first member AKA owner.
 		socket.on("joinRoom", (payload, callback) => {
-			const { username, userId, roomId, accessGranted } = payload;
+			const { username, userId, roomId } = payload;
 			const currentRoom = rooms.find((room) => room.id === roomId);
 			// catch invalid accesses such as max occupied or password bypass through direct url typing, etc.
 			// Only for direct url typing
@@ -85,22 +85,26 @@ exports = module.exports = (io) => {
 				return;
 			}
 			// add new user (check if owner) to the room
-			const isOwner = currentRoom.members.length === 0;
-			currentRoom.members.push({
+			const firstPerson = currentRoom.members.length === 0;
+			const newMember = {
 				username,
 				userId,
-				isOwner,
 				socketId: socket.id,
-			});
+				isOwner: firstPerson,
+				isTurn: firstPerson,
+			};
+			currentRoom.members.push(newMember);
 			// make a key pair of {socket id: room id}
 			userRooms[socket.id] = roomId;
 			// join the user to socket room
 			socket.join(roomId);
 			callback({ success: true, room: currentRoom });
+			// update room info at the lobby
 			socket.broadcast
 				.to(`lobby-${currentRoom.gameId}`)
 				.emit("loadRooms", { rooms: getRooms(currentRoom.gameId) });
-			socket.broadcast.to(roomId).emit("userJoinsRoom", { room: currentRoom });
+			// update room info in the room
+			socket.broadcast.to(roomId).emit("userJoinsRoom", newMember);
 		});
 
 		// on user send message
@@ -132,6 +136,17 @@ const userExit = (socket) => {
 	if (roomId) {
 		// user was at a game room and disconnected
 		const room = rooms.find((room) => room.id === roomId);
+		// if user is the first-turn next round, yield first-turn to next player
+		const playerIndex = room.members.findIndex(
+			(member) => member.socketId === socket.id
+		);
+		if (room.members[playerIndex].isTurn) {
+			if (playerIndex + 1 >= room.members.length) {
+				room.members[0].isTurn = true;
+			} else {
+				room.members[playerIndex + 1].isTurn = true;
+			}
+		}
 		// remove user from the room
 		room.members = room.members.filter(
 			(member) => member.socketId !== socket.id
@@ -149,6 +164,6 @@ const userExit = (socket) => {
 		socket.broadcast.to(`lobby-${room.gameId}`).emit("loadRooms", {
 			rooms: getRooms(room.gameId),
 		});
-		socket.broadcast.to(roomId).emit("userExitsRoom", { room });
+		socket.broadcast.to(roomId).emit("userExitsRoom", socket.id);
 	}
 };
