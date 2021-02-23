@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Field, Form, FormSpy } from "react-final-form";
 import { Button, Container, Grid, makeStyles } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import CachedIcon from "@material-ui/icons/Cached";
 import io from "socket.io-client";
 
 import GameDetail from "./GameDetail";
@@ -12,7 +11,7 @@ import Input from "../../form/Input";
 import CheckBox from "../../form/CheckBox";
 import { openModal } from "../../../actions";
 import { CREATE_ROOM_MODAL, LOGIN_MODAL } from "../../modal/modalTypes";
-import { ROOM_API } from "../../../axios";
+import boardGames from "../../../games/games";
 
 let socket;
 
@@ -27,46 +26,25 @@ const useStyles = makeStyles((theme) => ({
 			backgroundColor: theme.palette.success.dark,
 		},
 	},
-	[theme.breakpoints.down("sm")]: {
-		btnGroup: {
-			justifyContent: "center",
-			marginTop: theme.spacing(1),
-		},
-	},
 }));
 
 const SingleGame = ({ match }) => {
+	const { gameId } = match.params;
+	const boardgame = boardGames.find((boardgame) => boardgame.id === gameId);
+	const SOCKET_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
-	const { gameId } = match.params;
 	const [rooms, setRooms] = useState([]);
 	const [filteredRooms, setFilteredRooms] = useState([]);
-	const SOCKET_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 	const [search, setSearch] = useState("");
 	const [showPrivate, setShowPrivate] = useState(true);
 	const [showFull, setShowFull] = useState(true);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		const { data } = await ROOM_API.get(gameId);
-	// 		if (data.success) {
-	// 			setRooms(data.rooms);
-	// 		}
-	// 	})();
-	// }, [gameId]);
 
 	useEffect(() => {
 		socket = io(SOCKET_ENDPOINT);
 		socket.emit("joinLobby", { gameId: gameId }, (rooms) => setRooms(rooms));
 
-		return () => {
-			socket.off();
-			socket.close();
-		};
-	}, []);
-
-	useEffect(() => {
 		socket.on("loadRooms", ({ rooms }) => {
 			setRooms(rooms);
 		});
@@ -78,7 +56,6 @@ const SingleGame = ({ match }) => {
 	}, []);
 
 	useEffect(() => {
-		console.log("filter rooms");
 		setFilteredRooms(
 			rooms.filter((room) => {
 				console.log(room);
@@ -90,10 +67,6 @@ const SingleGame = ({ match }) => {
 			})
 		);
 	}, [search, showPrivate, showFull, rooms]);
-
-	useEffect(() => {
-		console.log(filteredRooms);
-	}, [filteredRooms]);
 
 	const onCreateRoomClick = () => {
 		if (auth.isLoggedIn) {
@@ -109,24 +82,9 @@ const SingleGame = ({ match }) => {
 		}
 	};
 
-	// const onSubmit = (values) => {
-	// 	console.log(values);
-	// 	socket.emit("joinLobby", { gameId: gameId }, (rooms) =>
-	// 		setRooms(
-	// 			rooms.filter(
-	// 				(room) =>
-	// 					(!values.search ||
-	// 						room.name.toLowerCase().includes(values.search.toLowerCase())) &&
-	// 					(values.showPrivate || !room.isPrivate) &&
-	// 					(values.showFull || room.maxOccupancy >= room.members.length)
-	// 			)
-	// 		)
-	// 	);
-	// };
-
 	return (
 		<Container className={classes.root}>
-			<GameDetail gameId={match.params.gameId} />
+			<GameDetail game={boardgame} />
 			<Form
 				onSubmit={() => {}}
 				initialValues={{ search: "", showPrivate: true, showFull: true }}
@@ -164,22 +122,7 @@ const SingleGame = ({ match }) => {
 									</Field>
 								</Grid>
 							</Grid>
-							<Grid
-								container
-								justify="flex-end"
-								spacing={2}
-								className={classes.btnGroup}
-							>
-								{/* <Grid item>
-									<Button
-										variant="contained"
-										color="primary"
-										startIcon={<CachedIcon />}
-										type="submit"
-									>
-										Refresh
-									</Button>
-								</Grid> */}
+							<Grid container justify="flex-end" spacing={2}>
 								<Grid item>
 									<Button
 										variant="contained"
@@ -198,20 +141,6 @@ const SingleGame = ({ match }) => {
 								setSearch(values.search);
 								setShowPrivate(values.showPrivate);
 								setShowFull(values.showFull);
-								// socket?.emit("joinLobby", { gameId: gameId }, (rooms) =>
-								// 	setRooms(
-								// 		rooms.filter(
-								// 			(room) =>
-								// 				(!values.search ||
-								// 					room.name
-								// 						.toLowerCase()
-								// 						.includes(values.search.toLowerCase())) &&
-								// 				(values.showPrivate || !room.isPrivate) &&
-								// 				(values.showFull ||
-								// 					room.maxOccupancy >= room.members.length)
-								// 		)
-								// 	)
-								// );
 							}}
 						/>
 					</>

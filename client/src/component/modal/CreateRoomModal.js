@@ -47,7 +47,6 @@ const CreateRoomModal = () => {
 	const classes = useStyles();
 	const dispatch = useDispatch();
 	const modal = useSelector((state) => state.modal);
-	const auth = useSelector((state) => state.auth);
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState(null);
 	const game = GAMES.find((game) => game.id === modal?.data?.gameId);
@@ -72,15 +71,6 @@ const CreateRoomModal = () => {
 				}
 			}
 		);
-		// const { data } = await ROOM_API.post("/", {
-		// 	owner: auth.userInfo.username,
-		// 	gameId: modal.data.gameId,
-		// 	...values,
-		// });
-		// if (data.success) {
-		// dispatch(closeModal());
-		// history.push(`/room/${data.newRoom._id}`);
-		// }
 	};
 
 	const createOption = (min, max) => {

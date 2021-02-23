@@ -3,7 +3,6 @@ import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { FaBrain } from "react-icons/fa";
 import { GiSandsOfTime } from "react-icons/gi";
-import GAMES from "../../../games/games";
 
 const useStyles = makeStyles((theme) => ({
 	gameInfoRow: {
@@ -45,9 +44,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const GameDetail = ({ gameId }) => {
+const GameDetail = ({ game }) => {
 	const classes = useStyles();
-	const game = GAMES.find((game) => game.id === gameId);
 
 	return (
 		<div className={classes.gameInfoRow}>

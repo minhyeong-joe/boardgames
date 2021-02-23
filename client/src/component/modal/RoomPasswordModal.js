@@ -50,7 +50,7 @@ const RoomPasswordModal = () => {
 					dispatch(closeModal());
 					history.push(`/room/${response.roomId}`);
 				} else {
-					setError("Incorrect Password");
+					setError(response.message);
 					setTimeout(() => {
 						setError(null);
 					}, 1500);

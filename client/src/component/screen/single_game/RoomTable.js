@@ -54,10 +54,13 @@ const RoomTable = ({ rooms, socket }) => {
 	const [order, setOrder] = useState("asc");
 	const [orderBy, setOrderBy] = useState("name");
 	const [page, setPage] = useState(0);
-	const ROWS_PER_PAGE = 10;
+	const ROWS_PER_PAGE = 1;
 
 	useEffect(() => {
-		setPage(0);
+		const numPages = Math.ceil(rooms.length / ROWS_PER_PAGE);
+		if (page > numPages) {
+			setPage(numPages - 1);
+		}
 	}, [rooms]);
 
 	const createSortHandler = (property) => (event) => {
@@ -95,7 +98,6 @@ const RoomTable = ({ rooms, socket }) => {
 	const onRoomClick = (roomName, isPrivate) => {
 		if (auth.isLoggedIn) {
 			if (isPrivate) {
-				console.log("Enter Password for Room");
 				dispatch(
 					openModal({
 						modalName: ROOM_PASSWORD_MODAL,
