@@ -84,6 +84,14 @@ exports = module.exports = (io) => {
 				callback({ success: false, message: "A game is in progress" });
 				return;
 			}
+			if (
+				rooms.find((room) =>
+					room.members.some((member) => member.userId === userId)
+				)
+			) {
+				callback({ success: false, message: "Duplicate user session" });
+				return;
+			}
 			// add new user (check if owner) to the room
 			const firstPerson = currentRoom.members.length === 0;
 			const newMember = {
