@@ -111,6 +111,7 @@ const ChatLog = ({ socket }) => {
 		});
 
 		socket?.on("log", (log) => {
+			console.log(log);
 			setLogs((logs) => {
 				return [...logs, log];
 			});

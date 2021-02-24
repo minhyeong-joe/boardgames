@@ -70,15 +70,7 @@ app.use("/api/users", userRoute);
 app.use("/api/rooms", roomRoute);
 
 // socketio
-// io.on("connection", (socket) => {
-// 	console.log("socket connected");
-// 	require("./sockets/rooms")(socket, io);
-
-// 	io.on("disconnect", () => {
-// 		console.log("socket disconneted");
-// 	});
-// });
-require("./sockets/rooms")(io);
+require("./sockets/core")(io);
 
 server.listen(PORT, () => {
 	console.log(`Server running on Port ${PORT}`);

@@ -43,7 +43,10 @@ const SingleGame = ({ match }) => {
 
 	useEffect(() => {
 		socket = io(SOCKET_ENDPOINT);
-		socket.emit("joinLobby", { gameId: gameId }, (rooms) => setRooms(rooms));
+		socket.emit("joinLobby", { gameId: gameId }, (rooms) => {
+			console.log(rooms);
+			setRooms(rooms);
+		});
 
 		socket.on("loadRooms", ({ rooms }) => {
 			setRooms(rooms);
@@ -58,7 +61,6 @@ const SingleGame = ({ match }) => {
 	useEffect(() => {
 		setFilteredRooms(
 			rooms.filter((room) => {
-				console.log(room);
 				return (
 					(!search || room.name.toLowerCase().includes(search.toLowerCase())) &&
 					(showPrivate || !room.isPrivate) &&
@@ -67,6 +69,10 @@ const SingleGame = ({ match }) => {
 			})
 		);
 	}, [search, showPrivate, showFull, rooms]);
+
+	useEffect(() => {
+		console.log(filteredRooms);
+	}, [filteredRooms]);
 
 	const onCreateRoomClick = () => {
 		if (auth.isLoggedIn) {
