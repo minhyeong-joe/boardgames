@@ -92,40 +92,17 @@ const TabPanel = (props) => {
 	);
 };
 
-const ChatLog = ({ socket }) => {
+const ChatLog = ({ messages, logs, socket }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const [tab, setTab] = useState(0);
-	const [messages, setMessages] = useImmer([]);
-	const [logs, setLogs] = useImmer([]);
 	const [input, setInput] = useState("");
 	const [autoscroll, setAutoscroll] = useState(true);
 
 	useEffect(() => {
-		socket?.on("message", (message) => {
-			setMessages((msgs) => {
-				return [...msgs, message];
-			});
-			scrollToBottom();
-		});
-
-		socket?.on("log", (log) => {
-			console.log(log);
-			setLogs((logs) => {
-				return [...logs, log];
-			});
-			scrollToBottom();
-		});
-
-		return () => {
-			socket?.off();
-		};
-	}, [socket, setMessages, setLogs, autoscroll]);
-
-	useEffect(() => {
 		scrollToBottom();
-	}, [tab, autoscroll]);
+	}, [tab, autoscroll, messages, logs]);
 
 	const handleTabChange = (e, newVal) => {
 		setTab(newVal);
@@ -146,7 +123,7 @@ const ChatLog = ({ socket }) => {
 
 	const sendMessage = () => {
 		if (auth.isLoggedIn) {
-			socket.emit("sendMessage", {
+			socket?.emit("sendMessage", {
 				senderId: auth.userInfo._id,
 				sendername: auth.userInfo.username,
 				content: input,

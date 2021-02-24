@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import io from "socket.io-client";
+import { useImmer } from "use-immer";
 
 import { closeModal, openModal, showFlash } from "../../../actions";
 import { LOGIN_MODAL } from "../../modal/modalTypes";
@@ -55,6 +56,8 @@ const Room = ({ match }) => {
 	const auth = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const [room, setRoom] = useState(null);
+	const [messages, setMessages] = useImmer([]);
+	const [logs, setLogs] = useImmer([]);
 
 	useEffect(() => {
 		if (auth.isLoggedIn) {
@@ -101,6 +104,26 @@ const Room = ({ match }) => {
 		};
 	}, [auth]);
 
+	useEffect(() => {
+		socket?.on("message", (message) => {
+			setMessages((msgs) => {
+				return [...msgs, message];
+			});
+		});
+
+		socket?.on("log", (log) => {
+			console.log(log);
+			setLogs((logs) => {
+				return [...logs, log];
+			});
+		});
+
+		return () => {
+			socket?.off("message");
+			socket?.off("log");
+		};
+	}, [socket, setMessages, setLogs]);
+
 	const onLeaveClick = () => {
 		if (!auth.isLoggedIn) {
 			history.push("/");
@@ -121,7 +144,7 @@ const Room = ({ match }) => {
 					>
 						Leave Room
 					</Button>
-					<ChatLog room={room} socket={socket} />
+					<ChatLog messages={messages} logs={logs} socket={socket} />
 				</Grid>
 				<Grid item xs={12} sm className={classes.gameAreaGrid}>
 					<GameArea room={room} socket={socket} />
