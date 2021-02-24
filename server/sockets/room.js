@@ -12,7 +12,7 @@ const joinLobby = (socket, rooms, userRooms) => (payload, callback) => {
 const createRoom = (rooms) => (payload, callback) => {
 	const { name, password, maxOccupancy, gameId } = payload;
 	const roomId = uuidv4();
-	if (rooms.find((room) => room.name === name)) {
+	if (rooms.find((room) => room.name === name && room.gameId === gameId)) {
 		// if room name exists
 		callback({ success: false, message: "Room name already in use" });
 		return;
@@ -29,8 +29,10 @@ const createRoom = (rooms) => (payload, callback) => {
 
 // User requests to join a room by clicking the room at the lobby
 const requestJoinRoom = (rooms) => (payload, callback) => {
-	const { name, password } = payload;
-	const roomToJoin = rooms.find((room) => room.name === name);
+	const { name, password, gameId } = payload;
+	const roomToJoin = rooms.find(
+		(room) => room.name === name && room.gameId === gameId
+	);
 	// catch invalid join room requests
 	if (!roomToJoin) {
 		callback({ success: false, message: "Room does not exist" });

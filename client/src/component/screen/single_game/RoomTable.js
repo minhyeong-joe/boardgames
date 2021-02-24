@@ -95,29 +95,33 @@ const RoomTable = ({ rooms, socket }) => {
 		return stabilizedThis.map((el) => el[0]);
 	};
 
-	const onRoomClick = (roomName, isPrivate) => {
+	const onRoomClick = (room) => {
 		if (auth.isLoggedIn) {
-			if (isPrivate) {
+			if (room.isPrivate) {
 				dispatch(
 					openModal({
 						modalName: ROOM_PASSWORD_MODAL,
-						data: { socket, roomName },
+						data: { socket, room },
 					})
 				);
 			} else {
-				socket.emit("requestJoinRoom", { name: roomName }, (response) => {
-					if (response.success) {
-						history.push(`/room/${response.roomId}`);
-					} else {
-						dispatch(
-							showFlash({
-								message: response.message,
-								duration: 2000,
-								severity: "error",
-							})
-						);
+				socket.emit(
+					"requestJoinRoom",
+					{ name: room.name, gameId: room.gameId },
+					(response) => {
+						if (response.success) {
+							history.push(`/room/${response.roomId}`);
+						} else {
+							dispatch(
+								showFlash({
+									message: response.message,
+									duration: 2000,
+									severity: "error",
+								})
+							);
+						}
 					}
-				});
+				);
 			}
 		} else {
 			dispatch(openModal({ modalName: LOGIN_MODAL }));
@@ -209,7 +213,7 @@ const RoomTable = ({ rooms, socket }) => {
 										onClick={
 											isRoomFull || isRoomPlaying
 												? null
-												: () => onRoomClick(room.name, room.isPrivate)
+												: () => onRoomClick(room)
 										}
 									>
 										<TableCell align="center">

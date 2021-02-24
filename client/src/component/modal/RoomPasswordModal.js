@@ -41,10 +41,10 @@ const RoomPasswordModal = () => {
 	const [error, setError] = useState(null);
 
 	const onSubmit = (values) => {
-		const { socket, roomName } = modal.data;
+		const { socket, room } = modal.data;
 		socket.emit(
 			"requestJoinRoom",
-			{ name: roomName, password: values.password },
+			{ name: room.name, password: values.password, gameId: room.gameId },
 			(response) => {
 				if (response.success) {
 					dispatch(closeModal());
