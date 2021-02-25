@@ -44,7 +44,6 @@ const SingleGame = ({ match }) => {
 	useEffect(() => {
 		socket = io(SOCKET_ENDPOINT);
 		socket.emit("joinLobby", { gameId: gameId }, (rooms) => {
-			console.log(rooms);
 			setRooms(rooms);
 		});
 

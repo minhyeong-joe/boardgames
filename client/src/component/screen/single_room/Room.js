@@ -111,7 +111,6 @@ const Room = ({ match }) => {
 		});
 
 		socket?.on("log", (log) => {
-			console.log(log);
 			setLogs((logs) => {
 				return [...logs, log];
 			});
@@ -135,7 +134,6 @@ const Room = ({ match }) => {
 		const gameName = boardGames.find(
 			(boardGame) => boardGame.id === room.gameId
 		).name;
-		console.log(gameName);
 		switch (gameName) {
 			case "For Sale":
 				return <ForSale socket={socket} room={room} />;

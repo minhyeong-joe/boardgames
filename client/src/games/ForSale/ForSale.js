@@ -24,10 +24,6 @@ const ForSale = ({ socket, room }) => {
 	const [myTurn, setMyTurn] = useState(false);
 
 	useEffect(() => {
-		console.log(socket);
-	}, [socket]);
-
-	useEffect(() => {
 		socket.on("updateGameState", (gameState) => {
 			setGameState(gameState);
 		});
@@ -38,13 +34,8 @@ const ForSale = ({ socket, room }) => {
 		const isMyTurn =
 			gameState?.players.find((player) => player.isTurn).userId ===
 			auth.userInfo._id;
-		console.log(isMyTurn);
 		setMyTurn(isMyTurn);
 	}, [gameState]);
-
-	useEffect(() => {
-		console.log(myTurn);
-	}, [myTurn]);
 
 	const renderStartGameBtn = () => {
 		const ownerId = room.members[0].userId;
@@ -60,6 +51,7 @@ const ForSale = ({ socket, room }) => {
 					variant="contained"
 					color="primary"
 					onClick={onGameStart}
+					// uncomment below to disable game start when there's not enough players
 					// disabled={!isPlayersEnough}
 				>
 					Start Game

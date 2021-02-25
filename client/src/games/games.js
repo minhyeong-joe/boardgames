@@ -1,6 +1,4 @@
 import BoardGameImage from "../assets/image/boardgame_temp.png";
-import ForSale from "./ForSale/ForSale";
-
 const GAMES = [
 	{
 		id: "4d6d6d26-3baa-4782-b06c-d5fb15f43e2b",
