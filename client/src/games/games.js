@@ -11,6 +11,7 @@ const GAMES = [
 		max: 6,
 		complexity: "easy",
 		duration: "short",
+		rule_url: "https://www.ultraboardgames.com/for-sale/game-rules.php",
 	},
 	{
 		id: "bd42935e-5a41-4c7c-a922-8f9e012a6ec1",

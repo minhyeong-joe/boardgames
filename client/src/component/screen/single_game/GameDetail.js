@@ -88,7 +88,13 @@ const GameDetail = ({ game }) => {
 						</Typography>
 					</Grid>
 				</Grid>
-				<Button variant="outlined">Game Rule</Button>
+				<a
+					href={game.rule_url}
+					target="_blank"
+					style={{ textDecoration: "none", color: "inherit" }}
+				>
+					<Button variant="outlined">Game Rule</Button>
+				</a>
 			</div>
 		</div>
 	);
