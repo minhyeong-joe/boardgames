@@ -1,8 +1,7 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
-import boardGames from "../../games/games";
+import GameStart from "./GameStart";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -36,29 +35,6 @@ const ForSale = ({ socket, room }) => {
 			auth.userInfo._id;
 		setMyTurn(isMyTurn);
 	}, [gameState]);
-
-	const renderStartGameBtn = () => {
-		const ownerId = room.members[0].userId;
-		const isPlayersEnough =
-			room.members.length >= boardGames.find((bg) => bg.id === room.gameId).min;
-
-		const onGameStart = () => {
-			socket.emit("startGame", { gameName, room });
-		};
-		if (ownerId === auth.userInfo._id) {
-			return (
-				<Button
-					variant="contained"
-					color="primary"
-					onClick={onGameStart}
-					// uncomment below to disable game start when there's not enough players
-					// disabled={!isPlayersEnough}
-				>
-					Start Game
-				</Button>
-			);
-		}
-	};
 
 	const renderPhaseOne = () => {
 		const onPassTurn = () => {
@@ -118,7 +94,9 @@ const ForSale = ({ socket, room }) => {
 			alignItems="center"
 			className={classes.root}
 		>
-			{!gameState && renderStartGameBtn()}
+			{!gameState && (
+				<GameStart socket={socket} room={room} gameName={gameName} />
+			)}
 			{gameState && gameState.phase === 1 && renderPhaseOne()}
 		</Grid>
 	);
