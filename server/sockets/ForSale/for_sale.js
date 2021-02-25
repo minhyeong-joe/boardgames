@@ -1,32 +1,59 @@
+const {
+	COINS,
+	INITIAL_PROPERTIES,
+	INITIAL_CURRENCIES,
+} = require("./constants");
+
 // roomId: gameState pair
 const gameState = {};
 
 const initForSale = (io, room) => {
 	// create initial game state
+	let initCoins = [];
+	let initPropertyDeck = [];
+	let initCurrencyDeck = [];
+	if (room.members.length < 5) {
+		// for 3-4 players
+		for (let i = 0; i < 2; i++) {
+			initCoins.push(COINS[2000]);
+		}
+		for (let i = 0; i < 14; i++) {
+			initCoins.push(COINS[1000]);
+		}
+		if (room.members.length === 3) {
+			// for 3 players
+			initPropertyDeck = removeRandomFromDeck(INITIAL_PROPERTIES, 6);
+			initCurrencyDeck = removeRandomFromDeck(INITIAL_CURRENCIES, 6);
+		} else {
+			// for 4 players
+			initPropertyDeck = removeRandomFromDeck(INITIAL_PROPERTIES, 2);
+			initCurrencyDeck = removeRandomFromDeck(INITIAL_CURRENCIES, 2);
+		}
+	} else {
+		// for 5-6 players
+		for (let i = 0; i < 2; i++) {
+			initCoins.push(COINS[2000]);
+		}
+		for (let i = 0; i < 10; i++) {
+			initCoins.push(COINS[1000]);
+		}
+	}
 	const players = room.members.map((member) => ({
 		userId: member.userId,
 		username: member.username,
 		isTurn: member.isTurn,
-		coins: { 2: 2, 1: 14 },
+		coins: initCoins,
 		properties: [],
 		currencies: [],
 	}));
 	const INITIAL_GAME_STATE = {
 		players: players,
-		openProperties: [],
+		openProperties: initPropertyDeck.splice(0, players.length),
 		openCurrencies: [],
-		remainingProperties: 2,
-		remainingCurrencies: 4,
-		propertyDecks: [
-			{ value: 1, image: "card_img" },
-			{ value: 2, image: "card_img" },
-		],
-		currencyDecks: [
-			{ value: 0, image: "currency_img" },
-			{ value: 0, image: "currency_img" },
-			{ value: 2, image: "currency_img" },
-			{ value: 2, image: "currency_img" },
-		],
+		remainingProperties: initPropertyDeck.length,
+		remainingCurrencies: initCurrencyDeck.length,
+		propertyDecks: initPropertyDeck,
+		currencyDecks: initCurrencyDeck,
 		phase: 1,
 		passOrder: [],
 	};
@@ -101,6 +128,20 @@ const filterGameState = (roomId, userId) => {
 	};
 	console.log(`Filtered Game State sent to ${userId}:`, filteredGameState);
 	return filteredGameState;
+};
+
+// removes random numToRemove cards from the given deck
+// returns shuffled cards after numToRemove cards are removed.
+const removeRandomFromDeck = (deck, numToRemove) => {
+	const copy = [...deck];
+	const shuffled = [];
+	while (copy.length > 0) {
+		const randomIndex = Math.floor(Math.random() * copy.length);
+		shuffled.push(copy[randomIndex]);
+		copy.splice(randomIndex, 1);
+	}
+	shuffled.splice(0, numToRemove);
+	return shuffled;
 };
 
 module.exports = { initForSale, updateForSale, endForSale };
