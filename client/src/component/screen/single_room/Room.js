@@ -147,6 +147,7 @@ const Room = ({ match }) => {
 			<Grid container spacing={2} alignItems="stretch">
 				<Grid item xs={12} sm="auto" className={classes.sidebarGrid}>
 					<UserList members={room?.members} />
+					<ChatLog messages={messages} logs={logs} socket={socket} />
 					<Button
 						variant="contained"
 						className={classes.leaveBtn}
@@ -154,7 +155,6 @@ const Room = ({ match }) => {
 					>
 						Leave Room
 					</Button>
-					<ChatLog messages={messages} logs={logs} socket={socket} />
 				</Grid>
 				<Grid item xs={12} sm className={classes.gameAreaGrid}>
 					{room && renderGame()}
