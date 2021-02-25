@@ -8,8 +8,9 @@ import { useImmer } from "use-immer";
 import { closeModal, openModal, showFlash } from "../../../actions";
 import { LOGIN_MODAL } from "../../modal/modalTypes";
 import ChatLog from "./ChatLog";
-import GameArea from "./GameArea";
 import UserList from "./UserList";
+import boardGames from "../../../games/games";
+import ForSale from "../../../games/ForSale/ForSale";
 
 let socket;
 
@@ -34,6 +35,8 @@ const useStyles = makeStyles((theme) => ({
 	},
 	gameAreaGrid: {
 		order: 2,
+		display: "flex",
+		flexWrap: "wrap",
 	},
 	[theme.breakpoints.down("xs")]: {
 		sidebarGrid: {
@@ -86,11 +89,7 @@ const Room = ({ match }) => {
 				}
 			);
 
-			socket.on("userJoinsRoom", ({ room }) => {
-				setRoom(room);
-			});
-
-			socket.on("userExitsRoom", ({ room }) => {
+			socket.on("updateRoom", ({ room }) => {
 				setRoom(room);
 			});
 		} else {
@@ -132,6 +131,19 @@ const Room = ({ match }) => {
 		}
 	};
 
+	const renderGame = () => {
+		const gameName = boardGames.find(
+			(boardGame) => boardGame.id === room.gameId
+		).name;
+		console.log(gameName);
+		switch (gameName) {
+			case "For Sale":
+				return <ForSale socket={socket} room={room} />;
+			default:
+				return null;
+		}
+	};
+
 	return (
 		<Container className={classes.root}>
 			<Grid container spacing={2} alignItems="stretch">
@@ -147,7 +159,7 @@ const Room = ({ match }) => {
 					<ChatLog messages={messages} logs={logs} socket={socket} />
 				</Grid>
 				<Grid item xs={12} sm className={classes.gameAreaGrid}>
-					<GameArea room={room} socket={socket} />
+					{room && renderGame()}
 				</Grid>
 			</Grid>
 		</Container>

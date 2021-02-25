@@ -196,7 +196,7 @@ const RoomTable = ({ rooms, socket }) => {
 							.slice(page * ROWS_PER_PAGE, page * ROWS_PER_PAGE + ROWS_PER_PAGE)
 							.map((room, index) => {
 								const isRoomFull = room.members.length === room.maxOccupancy;
-								const isRoomPlaying = Boolean(room.gameState);
+								const isRoomPlaying = room.isPlaying;
 								if (!room || room.members.length === 0) {
 									return null;
 								}

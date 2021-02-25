@@ -65,9 +65,7 @@ mongoose
 
 // API routes
 const userRoute = require("./routes/users");
-const roomRoute = require("./routes/rooms");
 app.use("/api/users", userRoute);
-app.use("/api/rooms", roomRoute);
 
 // socketio
 require("./sockets/core")(io);
