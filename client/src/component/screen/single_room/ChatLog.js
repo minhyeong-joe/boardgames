@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
 		borderRadius: "12px",
 		marginBottom: theme.spacing(1),
 	},
-	[theme.breakpoints.down("xs")]: {
+	[theme.breakpoints.down("sm")]: {
 		root: {
 			width: "100%",
 		},

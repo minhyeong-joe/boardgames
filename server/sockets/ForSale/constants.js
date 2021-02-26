@@ -65,8 +65,14 @@ const INITIAL_CURRENCIES = [
 ];
 
 const COINS = {
-	1000: { value: 1000, image_url: "" },
-	2000: { value: 2000, image_url: "" },
+	1000: {
+		value: 1000,
+		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale8.jpg",
+	},
+	2000: {
+		value: 2000,
+		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale9.jpg",
+	},
 };
 
 module.exports = { INITIAL_PROPERTIES, INITIAL_CURRENCIES, COINS };

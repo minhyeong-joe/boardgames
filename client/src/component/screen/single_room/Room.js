@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 		display: "flex",
 		flexWrap: "wrap",
 	},
-	[theme.breakpoints.down("xs")]: {
+	[theme.breakpoints.down("sm")]: {
 		sidebarGrid: {
 			order: 2,
 		},
@@ -145,7 +145,7 @@ const Room = ({ match }) => {
 	return (
 		<Container className={classes.root}>
 			<Grid container spacing={2} alignItems="stretch">
-				<Grid item xs={12} sm="auto" className={classes.sidebarGrid}>
+				<Grid item xs={12} md="auto" className={classes.sidebarGrid}>
 					<UserList members={room?.members} />
 					<ChatLog messages={messages} logs={logs} socket={socket} />
 					<Button
@@ -156,7 +156,7 @@ const Room = ({ match }) => {
 						Leave Room
 					</Button>
 				</Grid>
-				<Grid item xs={12} sm className={classes.gameAreaGrid}>
+				<Grid item xs={12} md className={classes.gameAreaGrid}>
 					{room && renderGame()}
 				</Grid>
 			</Grid>
