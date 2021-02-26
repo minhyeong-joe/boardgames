@@ -3,8 +3,9 @@ const GAMES = [
 	{
 		id: "4d6d6d26-3baa-4782-b06c-d5fb15f43e2b",
 		name: "For Sale",
-		image_url:
-			"https://cf.geekdo-images.com/dJh9HkZC346NgPTAicJq_A__opengraph_letterbox/img/VkubAUejIItrZdQ0lgqkpE_pv4k=/fit-in/1200x630/filters:fill(auto):strip_icc()/pic1513085.jpg",
+		// image_url:
+		// 	"https://cf.geekdo-images.com/dJh9HkZC346NgPTAicJq_A__opengraph_letterbox/img/VkubAUejIItrZdQ0lgqkpE_pv4k=/fit-in/1200x630/filters:fill(auto):strip_icc()/pic1513085.jpg",
+		image_url: "https://www.ultraboardgames.com/img/slideshow/for-sale.jpg",
 		min: 3,
 		max: 6,
 		complexity: "easy",

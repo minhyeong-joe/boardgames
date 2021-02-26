@@ -23,6 +23,8 @@ const useStyles = makeStyles((theme) => ({
 		paddingTop: "100%",
 		borderTopLeftRadius: theme.spacing(1),
 		borderTopRightRadius: theme.spacing(1),
+		backgroundSize: "contain",
+		backgroundColor: "#1b1b1b",
 	},
 	link: {
 		textDecoration: "none",
