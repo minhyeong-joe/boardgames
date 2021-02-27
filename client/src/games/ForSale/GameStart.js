@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -34,7 +34,11 @@ const GameStart = ({ socket, room }) => {
 				>
 					Start Game
 				</Button>
-			) : null}
+			) : (
+				<Typography variant="h5">
+					Wait for room owner to begin the game
+				</Typography>
+			)}
 		</>
 	);
 };

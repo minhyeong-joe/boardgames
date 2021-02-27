@@ -103,47 +103,6 @@ const PhaseOne = ({ socket, gameState, room }) => {
 		setMyState(me);
 	}, [gameState]);
 
-	const onPassTurn = () => {
-		if (myState.isTurn) {
-			const currentPlayerIndex = gameState.players.findIndex(
-				(player) => player.userId === auth.userInfo._id
-			);
-			const nextPlayerIndex =
-				currentPlayerIndex + 1 >= gameState.players.length
-					? 0
-					: currentPlayerIndex + 1;
-			const players = gameState.players.map((player, index) => {
-				if (index === nextPlayerIndex) {
-					return {
-						...player,
-						isTurn: true,
-					};
-				}
-				return {
-					...player,
-					isTurn: false,
-				};
-			});
-			const newGameState = {
-				...gameState,
-				players,
-			};
-			socket.emit("updateForSale", {
-				room,
-				newGameState,
-				userId: auth.userInfo._id,
-			});
-		}
-	};
-
-	const onEndGame = () => {
-		if (myState.isTurn) {
-			socket.emit("endForSale", { room }, () => {
-				socket.emit("moveTurn", { roomId: room.id });
-			});
-		}
-	};
-
 	const onCoinClick = (index, value) => {
 		if (selectedCoins.includes(index)) {
 			setSelectedCoins(selectedCoins.filter((idx) => idx !== index));
