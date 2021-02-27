@@ -143,19 +143,73 @@ const PhaseOne = ({ socket, gameState, room }) => {
 		}
 	};
 
+	const nextPlayer = () => {
+		const currentPlayerIndex = gameState.players.findIndex(
+			(player) => player.userId === activePlayer.userId
+		);
+		for (let i = currentPlayerIndex + 1; i < gameState.players.length; i++) {
+			if (gameState.players[i].bidding !== null) {
+				return gameState.players[i];
+			}
+		}
+		for (let i = 0; i < currentPlayerIndex; i++) {
+			if (gameState.players[i].bidding !== null) {
+				return gameState.players[i];
+			}
+		}
+		return null;
+	};
+
+	const onBidClick = () => {
+		// pass turn
+		const nextTurn = nextPlayer();
+		nextTurn.isTurn = true;
+		myState.isTurn = false;
+
+		const newPlayerState = gameState.players.map((player) => {
+			if (player.userId === myState.userId) {
+				return {
+					...myState,
+					coins: myState.coins.filter(
+						(coin, index) => !selectedCoins.includes(index)
+					),
+					bidding: selectedValues,
+				};
+			}
+			return player;
+		});
+		const newGameState = {
+			...gameState,
+			players: newPlayerState,
+		};
+		console.log(newGameState);
+		setSelectedCoins([]);
+		setSelectedValues(0);
+		socket.emit("updateForSale", {
+			room,
+			newGameState,
+			userId: myState.userId,
+		});
+	};
+
+	const onPassClick = () => {};
+
+	// Utility to display coin values with commas in every three digits
 	const numberWithCommas = (num) => {
 		return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	};
 
+	// Utility to render client user's remaining coin values
 	const remainingCoins = () => {
 		return numberWithCommas(
 			myState.coins.reduce((acc, coin) => acc + coin.value, 0)
 		);
 	};
 
+	// Utility to find minimum bid available for current round
 	const minimumBid = () => {
 		const bids = gameState.players.map((player) => player.bidding);
-		return numberWithCommas(Math.min(...bids) + 1000);
+		return Math.max(...bids) + 1000;
 	};
 
 	return (
@@ -249,7 +303,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 										>
 											{player.username}:{" "}
 											{player.bidding || player.bidding === 0
-												? `$ ${player.bidding}`
+												? `$ ${numberWithCommas(player.bidding)}`
 												: "PASS"}
 										</Typography>
 									</Grid>
@@ -284,14 +338,25 @@ const PhaseOne = ({ socket, gameState, room }) => {
 								</Typography>
 							</Grid>
 							<Grid item xs={12} sm={4}>
-								<Typography>Minimum: $ {minimumBid()}</Typography>
+								<Typography>
+									Minimum: $ {numberWithCommas(minimumBid())}
+								</Typography>
 							</Grid>
 						</Grid>
 						<div className={classes.btnGroup}>
-							<Button variant="contained" color="primary">
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={onBidClick}
+								disabled={selectedValues < minimumBid()}
+							>
 								Bid
 							</Button>
-							<Button variant="contained" color="secondary">
+							<Button
+								variant="contained"
+								color="secondary"
+								onClick={onPassClick}
+							>
 								Pass
 							</Button>
 						</div>

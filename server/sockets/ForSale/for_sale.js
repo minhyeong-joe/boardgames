@@ -79,6 +79,7 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 			coins: serverStatePlayer.coins,
 			properties: serverStatePlayer.properties,
 			currencies: serverStatePlayer.currencies,
+			bidding: player.bidding,
 		};
 	});
 	// make any necessary changes (fetch hidden infos from server-side gameState)
