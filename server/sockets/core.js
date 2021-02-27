@@ -11,6 +11,7 @@ const {
 	sendMessage,
 	userExit,
 	moveTurn,
+	startGame,
 } = require("./room");
 
 exports = module.exports = (io) => {
@@ -37,6 +38,9 @@ exports = module.exports = (io) => {
 		// on game end, turn transfers to the next player
 		socket.on("moveTurn", moveTurn(io));
 
+		// on game start
+		socket.on("startGame", startGame(io, socket));
+
 		// ************* GAME OPERATIONS ******************
 		// For Sale
 		socket.on("initForSale", initForSale(io));
@@ -48,7 +52,7 @@ exports = module.exports = (io) => {
 		socket.on("disconnect", () => {
 			console.log(`socket disconnected: ${socket.id}`);
 
-			userExit(socket);
+			userExit(io, socket);
 		});
 	});
 };

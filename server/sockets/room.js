@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const { endForSale } = require("./ForSale/for_sale");
 
 // userRooms is used to map user's socket id to the room id
 // This makes room search from socket id efficient and fast
@@ -142,8 +143,24 @@ const moveTurn = (io) => (payload) => {
 	io.in(roomId).emit("updateRoom", { room: roomToModify });
 };
 
+const startGame = (io, socket) => (payload) => {
+	const { roomId } = payload;
+	const room = rooms.find((room) => room.id === roomId);
+	room.isPlaying = true;
+	// update room info at the lobby
+	socket.broadcast
+		.to(`lobby-${room.gameId}`)
+		.emit("loadRooms", { rooms: getRooms(room.gameId) });
+	// update room info in the room
+	socket.broadcast.to(roomId).emit("updateRoom", { room });
+	io.in(roomId).emit("log", {
+		timestamp: Date.now(),
+		message: "Game has started",
+	});
+};
+
 // On user leaves a room
-const userExit = (socket) => {
+const userExit = (io, socket) => {
 	const roomName = userRooms[socket.id];
 	if (roomName) {
 		const room = rooms.find((room) => room.id === roomName);
@@ -188,6 +205,18 @@ const userExit = (socket) => {
 				timestamp: Date.now(),
 				message: `${username} left the room`,
 			});
+
+			// if game was in progress
+			if (room.isPlaying) {
+				room.isPlaying = false;
+				switch (room.gameId) {
+					case "4d6d6d26-3baa-4782-b06c-d5fb15f43e2b":
+						endForSale(io)({ room });
+						break;
+
+					default:
+				}
+			}
 		}
 		socketLeaveRoom(socket);
 	}
@@ -220,4 +249,5 @@ module.exports = {
 	userExit,
 	sendMessage,
 	moveTurn,
+	startGame,
 };

@@ -19,6 +19,7 @@ const GameStart = ({ socket, room }) => {
 
 	const onGameStart = () => {
 		socket.emit("initForSale", { room });
+		socket.emit("startGame", { roomId: room.id });
 	};
 
 	return (
@@ -29,7 +30,7 @@ const GameStart = ({ socket, room }) => {
 					color="primary"
 					onClick={onGameStart}
 					// uncomment below to disable game start when there's not enough players
-					// disabled={!isEnough}
+					disabled={!isEnough}
 				>
 					Start Game
 				</Button>

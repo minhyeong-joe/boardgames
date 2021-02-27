@@ -127,11 +127,10 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 	emitNewGameState(io, room);
 };
 
-const endForSale = (io) => ({ room, callback }) => {
+const endForSale = (io) => ({ room }) => {
 	gameState[room.id] = null;
 	delete gameState[room.id];
 	io.in(room.id).emit("updateGameState", null);
-	callback();
 };
 
 // HELPERS
