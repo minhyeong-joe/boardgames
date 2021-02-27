@@ -13,6 +13,17 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import tempImage from "../../assets/image/boardgame_temp.png";
 
+const COINS = {
+	1000: {
+		value: 1000,
+		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale8.jpg",
+	},
+	2000: {
+		value: 2000,
+		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale9.jpg",
+	},
+};
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
@@ -173,7 +184,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 					coins: myState.coins.filter(
 						(coin, index) => !selectedCoins.includes(index)
 					),
-					bidding: selectedValues,
+					bidding: selectedValues + myState.bidding,
 				};
 			}
 			return player;
@@ -192,7 +203,121 @@ const PhaseOne = ({ socket, gameState, room }) => {
 		});
 	};
 
-	const onPassClick = () => {};
+	const onPassClick = () => {
+		getRefund();
+		claimLowestProperty();
+		const nextTurn = nextPlayer();
+		myState.isTurn = false;
+
+		// if one of the last two passes
+		// the other one automatically gets highest card and move onto next round
+		if (
+			gameState.openProperties.filter((property) => !property.taken).length ===
+			1
+		) {
+			gameState.openProperties.find((property) => !property.taken).taken =
+				nextTurn.username;
+			const newPlayerState = gameState.players.map((player) => {
+				if (player.userId === myState.userId) {
+					return {
+						...myState,
+						coins: myState.coins,
+						bidding: null,
+					};
+				}
+				if (player.userId === nextTurn.userId) {
+					return {
+						...nextTurn,
+						bidding: null,
+					};
+				}
+				return player;
+			});
+			const newGameState = {
+				...gameState,
+				players: newPlayerState,
+			};
+			console.log(newGameState);
+			setSelectedCoins([]);
+			setSelectedValues(0);
+			socket.emit("updateForSale", {
+				room,
+				newGameState,
+				userId: myState.userId,
+			});
+			// after brief pause, start next round
+			setTimeout(() => {
+				nextTurn.isTurn = true;
+				socket.emit("updateForSale", {
+					room,
+					newGameState: gameState,
+					userId: myState.userId,
+				});
+			}, 3000);
+		} else {
+			// pass turn
+			nextTurn.isTurn = true;
+
+			const newPlayerState = gameState.players.map((player) => {
+				if (player.userId === myState.userId) {
+					return {
+						...myState,
+						coins: myState.coins,
+						bidding: null,
+					};
+				}
+				return player;
+			});
+			const newGameState = {
+				...gameState,
+				players: newPlayerState,
+			};
+			console.log(newGameState);
+			setSelectedCoins([]);
+			setSelectedValues(0);
+			socket.emit("updateForSale", {
+				room,
+				newGameState,
+				userId: myState.userId,
+			});
+		}
+	};
+
+	// get half rounded down refund for passing
+	const getRefund = () => {
+		let maxNumOf2000 =
+			2 - myState.coins.filter((coin) => coin.value === 2000).length;
+		console.log(maxNumOf2000);
+		let refund = Math.floor(myState.bidding / 2000) * 1000;
+		let num2000 = 0;
+		let num1000 = 0;
+		while (refund >= 2000 && maxNumOf2000 > 0) {
+			num2000 += 1;
+			refund -= 2000;
+			maxNumOf2000 -= 1;
+		}
+		num1000 = refund / 1000;
+		for (let i = 0; i < num1000; i++) {
+			myState.coins.push(COINS[1000]);
+		}
+		for (let i = 0; i < num2000; i++) {
+			myState.coins.push(COINS[2000]);
+		}
+		myState.coins.sort((a, b) => b.value - a.value);
+	};
+
+	// get lowest property available
+	const claimLowestProperty = () => {
+		let min = 31;
+		let minIndex;
+		gameState.openProperties.forEach((property, index) => {
+			if (property.value < min && !property.taken) {
+				min = property.value;
+				minIndex = index;
+			}
+		});
+		gameState.openProperties[minIndex].taken = myState.username;
+	};
 
 	// Utility to display coin values with commas in every three digits
 	const numberWithCommas = (num) => {
@@ -214,18 +339,22 @@ const PhaseOne = ({ socket, gameState, room }) => {
 
 	return (
 		<>
-			{gameState && myState && activePlayer && (
+			{gameState && myState && (
 				<div
 					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
 				>
 					<Alert severity="info" variant="filled">
-						<AlertTitle>
-							Player{" "}
-							<span className={classes.activePlayerName}>
-								{activePlayer.username}
-							</span>{" "}
-							is making a decision...
-						</AlertTitle>
+						{activePlayer ? (
+							<AlertTitle>
+								Player{" "}
+								<span className={classes.activePlayerName}>
+									{activePlayer.username}
+								</span>{" "}
+								is making a decision...
+							</AlertTitle>
+						) : (
+							<AlertTitle> New round is about to begin...</AlertTitle>
+						)}
 					</Alert>
 					<div className={classes.boardWrapper}>
 						<Grid
@@ -265,7 +394,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 											</div>
 										</Card>
 									);
-									const taken = gameState.playerToProperty[propertyCard.value];
+									const taken = propertyCard.taken;
 									return (
 										<Grid item key={propertyCard.value}>
 											{taken ? (
@@ -296,7 +425,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 										<Typography
 											variant="h6"
 											className={
-												player.userId === activePlayer.userId
+												activePlayer && player.userId === activePlayer.userId
 													? classes.activePlayerName
 													: ""
 											}
@@ -334,7 +463,8 @@ const PhaseOne = ({ socket, gameState, room }) => {
 							</Grid>
 							<Grid item xs={12} sm={4}>
 								<Typography>
-									Current: $ {numberWithCommas(selectedValues)}
+									Current: ${" "}
+									{numberWithCommas(selectedValues + myState.bidding)}
 								</Typography>
 							</Grid>
 							<Grid item xs={12} sm={4}>
@@ -348,7 +478,10 @@ const PhaseOne = ({ socket, gameState, room }) => {
 								variant="contained"
 								color="primary"
 								onClick={onBidClick}
-								disabled={selectedValues < minimumBid()}
+								disabled={
+									selectedValues + myState.bidding < minimumBid() ||
+									!myState.isTurn
+								}
 							>
 								Bid
 							</Button>
@@ -356,6 +489,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 								variant="contained"
 								color="secondary"
 								onClick={onPassClick}
+								disabled={!myState.isTurn}
 							>
 								Pass
 							</Button>

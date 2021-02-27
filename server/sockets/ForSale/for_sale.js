@@ -82,6 +82,31 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 			bidding: player.bidding,
 		};
 	});
+	// phase1's new round about to start
+	// give each player the property card they got
+	// and get open next set of properties if there are more
+	if (
+		newGameState.openProperties.filter((property) => !property.taken).length ===
+			0 &&
+		players.find((player) => player.isTurn)
+	) {
+		// each player gets prop card to their possession
+		players.forEach((player) => {
+			const acquiredProp = newGameState.openProperties.find(
+				(property) => property.taken === player.username
+			);
+			player.properties.push(acquiredProp);
+			player.bidding = 0;
+		});
+		if (newGameState.remainingProperties >= players.length) {
+			newGameState.openProperties = gameState[room.id].propertyDecks.splice(
+				0,
+				players.length
+			);
+			newGameState.remainingProperties =
+				gameState[room.id].propertyDecks.length;
+		}
+	}
 	// make any necessary changes (fetch hidden infos from server-side gameState)
 	const updatedGameState = {
 		...newGameState,
