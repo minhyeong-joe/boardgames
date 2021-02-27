@@ -7,7 +7,7 @@ const {
 // roomId: gameState pair
 const gameState = {};
 
-const initForSale = (io, room) => {
+const initForSale = (io) => ({ room }) => {
 	// create initial game state
 	let initCoins = [];
 	let initPropertyDeck = [];
@@ -45,6 +45,7 @@ const initForSale = (io, room) => {
 		coins: initCoins,
 		properties: [],
 		currencies: [],
+		bidding: 0,
 	}));
 	const INITIAL_GAME_STATE = {
 		players: players,
@@ -55,13 +56,13 @@ const initForSale = (io, room) => {
 		propertyDecks: initPropertyDeck,
 		currencyDecks: initCurrencyDeck,
 		phase: 1,
-		passOrder: [],
+		playerToProperty: {},
 	};
 	gameState[room.id] = INITIAL_GAME_STATE;
 	emitNewGameState(io, room);
 };
 
-const updateForSale = (io, room, newGameState, userId) => {
+const updateForSale = (io) => ({ room, newGameState, userId }) => {
 	// merge client-side's filtered change to sever-side's know-all game state
 	const players = newGameState.players.map((player) => {
 		// the user who just updated info (all player info should be available)
@@ -92,7 +93,7 @@ const updateForSale = (io, room, newGameState, userId) => {
 	emitNewGameState(io, room);
 };
 
-const endForSale = (io, room, callback) => {
+const endForSale = (io) => ({ room, callback }) => {
 	gameState[room.id] = null;
 	delete gameState[room.id];
 	io.in(room.id).emit("updateGameState", null);

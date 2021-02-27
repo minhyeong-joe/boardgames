@@ -12,8 +12,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const gameName = "For Sale";
-
 const ForSale = ({ socket, room }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
@@ -36,16 +34,9 @@ const ForSale = ({ socket, room }) => {
 			alignItems={gameState ? "flex-start" : "center"}
 			className={classes.root}
 		>
-			{!gameState && (
-				<GameStart socket={socket} room={room} gameName={gameName} />
-			)}
+			{!gameState && <GameStart socket={socket} room={room} />}
 			{gameState && gameState.phase === 1 && (
-				<PhaseOne
-					socket={socket}
-					gameName={gameName}
-					gameState={gameState}
-					room={room}
-				/>
+				<PhaseOne socket={socket} gameState={gameState} room={room} />
 			)}
 		</Grid>
 	);

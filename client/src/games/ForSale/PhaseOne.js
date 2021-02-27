@@ -48,6 +48,10 @@ const useStyles = makeStyles((theme) => ({
 			color: "white",
 		},
 	},
+	activePlayerName: {
+		color: theme.palette.error.dark,
+		fontWeight: "bold",
+	},
 	coinImage: {
 		width: "60px",
 		cursor: "pointer",
@@ -71,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const PhaseOne = ({ socket, gameState, gameName, room }) => {
+const PhaseOne = ({ socket, gameState, room }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
 	const [selectedCoins, setSelectedCoins] = useState([]);
@@ -113,8 +117,7 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 				...gameState,
 				players,
 			};
-			socket.emit("updateGameState", {
-				gameName,
+			socket.emit("updateForSale", {
 				room,
 				newGameState,
 				userId: auth.userInfo._id,
@@ -124,7 +127,7 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 
 	const onEndGame = () => {
 		if (myState.isTurn) {
-			socket.emit("endGame", { gameName, room }, () => {
+			socket.emit("endForSale", { room }, () => {
 				socket.emit("moveTurn", { roomId: room.id });
 			});
 		}
@@ -150,6 +153,11 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 		);
 	};
 
+	const minimumBid = () => {
+		const bids = gameState.players.map((player) => player.bidding);
+		return numberWithCommas(Math.min(...bids) + 1000);
+	};
+
 	return (
 		<>
 			{gameState && myState && activePlayer && (
@@ -157,7 +165,13 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
 				>
 					<Alert severity="info" variant="filled">
-						<AlertTitle>Player username1 is making a decision...</AlertTitle>
+						<AlertTitle>
+							Player{" "}
+							<span className={classes.activePlayerName}>
+								{activePlayer.username}
+							</span>{" "}
+							is making a decision...
+						</AlertTitle>
 					</Alert>
 					<div className={classes.boardWrapper}>
 						<Grid
@@ -175,100 +189,72 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 										className={classes.cardImage}
 									/>
 									<div className={classes.cardOverlay}>
-										<Typography variant="h5">26</Typography>
+										<Typography variant="h5">
+											{gameState.remainingProperties}
+										</Typography>
 									</div>
 								</Card>
 							</Grid>
 							<Grid container item xs spacing={1} justify="flex-start">
-								<Grid item>
-									<Badge
-										badgeContent="username5"
-										color="primary"
-										anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-									>
+								{gameState.openProperties.map((propertyCard) => {
+									const renderCard = () => (
 										<Card className={`${classes.card}`}>
 											<CardMedia
-												src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
+												src={propertyCard.image_url}
 												component="img"
 												className={classes.cardImage}
 											/>
+											<div className={classes.cardOverlay}>
+												<Typography variant="h5">
+													{propertyCard.value}
+												</Typography>
+											</div>
 										</Card>
-									</Badge>
-								</Grid>
-								<Grid item>
-									<Card className={`${classes.card}`}>
-										<CardMedia
-											src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-											component="img"
-											className={classes.cardImage}
-										/>
-									</Card>
-								</Grid>
-								<Grid item>
-									<Card className={`${classes.card}`}>
-										<CardMedia
-											src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-											component="img"
-											className={classes.cardImage}
-										/>
-									</Card>
-								</Grid>
-								<Grid item>
-									<Badge
-										badgeContent="username6"
-										color="primary"
-										anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-									>
-										<Card className={`${classes.card}`}>
-											<CardMedia
-												src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-												component="img"
-												className={classes.cardImage}
-											/>
-										</Card>
-									</Badge>
-								</Grid>
-								<Grid item>
-									<Card className={`${classes.card}`}>
-										<CardMedia
-											src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-											component="img"
-											className={classes.cardImage}
-										/>
-									</Card>
-								</Grid>
-								<Grid item>
-									<Card className={`${classes.card}`}>
-										<CardMedia
-											src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-											component="img"
-											className={classes.cardImage}
-										/>
-									</Card>
-								</Grid>
+									);
+									const taken = gameState.playerToProperty[propertyCard.value];
+									return (
+										<Grid item key={propertyCard.value}>
+											{taken ? (
+												<Badge
+													badgeContent={taken}
+													color="primary"
+													anchorOrigin={{
+														vertical: "bottom",
+														horizontal: "left",
+													}}
+												>
+													{renderCard()}
+												</Badge>
+											) : (
+												renderCard()
+											)}
+										</Grid>
+									);
+								})}
 							</Grid>
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 						<Typography variant="overline">Bidding Status</Typography>
 						<Grid container className={classes.biddingRow} spacing={1}>
-							<Grid item xs={6}>
-								<Typography variant="h6">username1: 2</Typography>
-							</Grid>
-							<Grid item xs={6}>
-								<Typography variant="h6">username2: 3</Typography>
-							</Grid>
-							<Grid item xs={6}>
-								<Typography variant="h6">username3: 4</Typography>
-							</Grid>
-							<Grid item xs={6}>
-								<Typography variant="h6">username4: 5</Typography>
-							</Grid>
-							<Grid item xs={6}>
-								<Typography variant="h6">username5: PASS</Typography>
-							</Grid>
-							<Grid item xs={6}>
-								<Typography variant="h6">username6: PASS</Typography>
-							</Grid>
+							{gameState.players.map((player) => {
+								return (
+									<Grid item xs={6} key={player.userId}>
+										<Typography
+											variant="h6"
+											className={
+												player.userId === activePlayer.userId
+													? classes.activePlayerName
+													: ""
+											}
+										>
+											{player.username}:{" "}
+											{player.bidding || player.bidding === 0
+												? `$ ${player.bidding}`
+												: "PASS"}
+										</Typography>
+									</Grid>
+								);
+							})}
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 						<Grid container spacing={1} justify="flex-start">
@@ -290,15 +276,15 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 						</Grid>
 						<Grid container spacing={2} justify="center">
 							<Grid item xs={12} sm={4}>
-								<Typography>Remaining: {remainingCoins()}</Typography>
+								<Typography>Remaining: $ {remainingCoins()}</Typography>
 							</Grid>
 							<Grid item xs={12} sm={4}>
 								<Typography>
-									Current: {numberWithCommas(selectedValues)}
+									Current: $ {numberWithCommas(selectedValues)}
 								</Typography>
 							</Grid>
 							<Grid item xs={12} sm={4}>
-								<Typography>Minimum: 7,000</Typography>
+								<Typography>Minimum: $ {minimumBid()}</Typography>
 							</Grid>
 						</Grid>
 						<div className={classes.btnGroup}>
@@ -312,33 +298,20 @@ const PhaseOne = ({ socket, gameState, gameName, room }) => {
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 						<Typography variant="overline">My Properties</Typography>
 						<Grid container item xs spacing={1} justify="flex-start">
-							<Grid item>
-								<Card className={`${classes.card}`}>
-									<CardMedia
-										src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-										component="img"
-										className={classes.cardImage}
-									/>
-								</Card>
-							</Grid>
-							<Grid item>
-								<Card className={`${classes.card}`}>
-									<CardMedia
-										src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-										component="img"
-										className={classes.cardImage}
-									/>
-								</Card>
-							</Grid>
-							<Grid item>
-								<Card className={`${classes.card}`}>
-									<CardMedia
-										src="https://cdn2.bigcommerce.com/n-d57o0b/1kujmu/products/297/images/926/4H__83243.1440113515.1280.1280.png?c=2"
-										component="img"
-										className={classes.cardImage}
-									/>
-								</Card>
-							</Grid>
+							{myState.properties.map((propertyCard) => (
+								<Grid item key={propertyCard.value}>
+									<Card className={`${classes.card}`}>
+										<CardMedia
+											src={propertyCard.image_url}
+											component="img"
+											className={classes.cardImage}
+										/>
+										<div className={classes.cardOverlay}>
+											<Typography variant="h5">{propertyCard.value}</Typography>
+										</div>
+									</Card>
+								</Grid>
+							))}
 						</Grid>
 					</div>
 				</div>

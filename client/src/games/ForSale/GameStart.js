@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import boardGames from "../../games/games";
 
-const GameStart = ({ socket, room, gameName }) => {
+const GameStart = ({ socket, room }) => {
 	const [isOwner, setIsOwner] = useState(false);
 	const [isEnough, setIsEnough] = useState(false);
 	const auth = useSelector((state) => state.auth);
@@ -18,7 +18,7 @@ const GameStart = ({ socket, room, gameName }) => {
 	}, [auth, room]);
 
 	const onGameStart = () => {
-		socket.emit("startGame", { gameName, room });
+		socket.emit("initForSale", { room });
 	};
 
 	return (

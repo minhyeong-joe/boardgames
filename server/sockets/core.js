@@ -1,4 +1,8 @@
-const { initGame, updateGame, endGame } = require("./game");
+const {
+	initForSale,
+	updateForSale,
+	endForSale,
+} = require("./ForSale/for_sale");
 const {
 	joinLobby,
 	createRoom,
@@ -34,11 +38,12 @@ exports = module.exports = (io) => {
 		socket.on("moveTurn", moveTurn(io));
 
 		// ************* GAME OPERATIONS ******************
-		socket.on("startGame", initGame(io));
+		// For Sale
+		socket.on("initForSale", initForSale(io));
 
-		socket.on("updateGameState", updateGame(io));
+		socket.on("updateForSale", updateForSale(io));
 
-		socket.on("endGame", endGame(io));
+		socket.on("endForSale", endForSale(io));
 
 		socket.on("disconnect", () => {
 			console.log(`socket disconnected: ${socket.id}`);
