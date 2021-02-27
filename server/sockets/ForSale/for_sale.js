@@ -56,7 +56,6 @@ const initForSale = (io) => ({ room }) => {
 		propertyDecks: initPropertyDeck,
 		currencyDecks: initCurrencyDeck,
 		phase: 1,
-		playerToProperty: {},
 	};
 	gameState[room.id] = INITIAL_GAME_STATE;
 	emitNewGameState(io, room);
@@ -105,6 +104,15 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 			);
 			newGameState.remainingProperties =
 				gameState[room.id].propertyDecks.length;
+		} else {
+			// create game state for phase 2
+			newGameState.openCurrencies = gameState[room.id].currencyDecks.splice(
+				0,
+				players.length
+			);
+			newGameState.remainingCurrencies =
+				gameState[room.id].currencyDecks.length;
+			newGameState.phase = 2;
 		}
 	}
 	// make any necessary changes (fetch hidden infos from server-side gameState)
