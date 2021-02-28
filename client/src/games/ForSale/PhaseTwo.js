@@ -90,7 +90,6 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	const [myState, setMyState] = useState(null);
 	const [activePlayer, setActivePlayer] = useState(null);
 	const [selectedProperty, setSelectedProperty] = useState(null);
-	const [showCard, setShowCard] = useState(false);
 
 	useEffect(() => {
 		const me = gameState?.players.find(
@@ -107,19 +106,6 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	// debugging purpose
 	useEffect(() => {
 		console.log("PHASE 2", gameState);
-	}, [gameState]);
-
-	useEffect(() => {
-		// if last player confirmed property selection
-		// brief pause, and move onto next round
-		if (gameState && gameState.players.every((player) => player.selected)) {
-			setTimeout(() => {
-				console.log("all selected");
-				// TO DO
-				// set new game state for server to start new round
-				// emit new game state to socket server
-			}, 3000);
-		}
 	}, [gameState]);
 
 	const onPropertySelect = (index) => {
@@ -160,6 +146,22 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 			newGameState,
 			userId: myState.userId,
 		});
+		// if last player confirmed property selection
+		// brief pause, and move onto next round
+		if (gameState.players.filter((player) => !player.selected).length === 1) {
+			setTimeout(() => {
+				console.log("all selected");
+				// TO DO
+				// set new game state for server to start new round
+				// emit new game state to socket server
+				console.log("NewRoundState:", newGameState);
+				socket.emit("updateForSale", {
+					room,
+					newGameState,
+					userId: myState.userId,
+				});
+			}, 3000);
+		}
 	};
 
 	// Utility to display coin values with commas in every three digits
