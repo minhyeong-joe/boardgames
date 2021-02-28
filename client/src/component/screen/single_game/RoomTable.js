@@ -54,7 +54,7 @@ const RoomTable = ({ rooms, socket }) => {
 	const [order, setOrder] = useState("asc");
 	const [orderBy, setOrderBy] = useState("name");
 	const [page, setPage] = useState(0);
-	const ROWS_PER_PAGE = 1;
+	const ROWS_PER_PAGE = 10;
 
 	useEffect(() => {
 		const numPages = Math.ceil(rooms.length / ROWS_PER_PAGE);

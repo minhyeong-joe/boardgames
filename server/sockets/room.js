@@ -188,7 +188,7 @@ const userExit = (io, socket) => {
 			// if everyone leaves, destroy room
 			if (room.members.length === 0) {
 				rooms.splice(
-					rooms.indexOf((room) => room.id === roomName),
+					rooms.findIndex((room) => room.id === roomName),
 					1
 				);
 			} else {

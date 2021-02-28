@@ -8,7 +8,7 @@ import {
 	Typography,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,6 +29,10 @@ const useStyles = makeStyles((theme) => ({
 		position: "relative",
 		borderRadius: "12px",
 		width: "120px",
+		"&.selected": {
+			border: "2px solid orange",
+			boxShadow: "0 0 10px orange",
+		},
 	},
 	cardImage: {
 		height: "auto",
@@ -51,10 +55,6 @@ const useStyles = makeStyles((theme) => ({
 		cursor: "pointer",
 		border: "2px solid transparent",
 		boxShadow: "none",
-		"&.selected": {
-			border: "2px solid orange",
-			boxShadow: "0 0 10px orange",
-		},
 	},
 	confirmBtn: {
 		marginLeft: "auto",
@@ -92,11 +92,12 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		const me = gameState?.players.find(
 			(player) => player.userId === auth.userInfo._id
 		);
-		const selecting = gameState?.players.filter(
-			(player) => !player.selectedProperty
-		);
+		const selecting = gameState?.players.filter((player) => player.isTurn);
 		setMyState(me);
 		setPlayersSelecting(selecting);
+		if (!me.selectedProperty) {
+			setSelectedProperty(null);
+		}
 	}, [gameState]);
 
 	// debugging purpose
@@ -105,6 +106,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	}, [gameState]);
 
 	const onPropertySelect = (index) => {
+		if (!myState.isTurn) return;
 		if (index === selectedProperty) {
 			setSelectedProperty(null);
 		} else {
@@ -117,7 +119,8 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 			if (player.userId === myState.userId) {
 				return {
 					...myState,
-					selectedProperty,
+					selectedProperty: myState.properties[selectedProperty],
+					isTurn: false,
 				};
 			}
 			return player;
@@ -127,6 +130,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 			players: newPlayerState,
 		};
 		console.log(newGameState);
+		socket.emit("updateForSale", {
+			room,
+			newGameState,
+			userId: myState.userId,
+		});
 	};
 
 	// Utility to display coin values with commas in every three digits
@@ -150,14 +158,14 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							<AlertTitle>
 								Waiting for{" "}
 								{playersSelecting.map((player, index) => (
-									<>
+									<Fragment key={player.userId}>
 										<span className={classes.activePlayerName}>
 											{player.username}
 										</span>
 										<span>
 											{index === playersSelecting.length - 1 ? "..." : ", "}
 										</span>
-									</>
+									</Fragment>
 								))}
 							</AlertTitle>
 						) : (
@@ -173,7 +181,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							spacing={2}
 						>
 							<Grid item>
-								<Card className={`${classes.backOfCard} ${classes.card}`}>
+								<Card className={classes.card}>
 									<CardMedia
 										src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
 										component="img"
@@ -187,9 +195,9 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								</Card>
 							</Grid>
 							<Grid container item xs spacing={1} justify="flex-start">
-								{gameState.openCurrencies.map((currencyCard) => (
-									<Grid item key={currencyCard.value}>
-										<Card className={`${classes.card}`}>
+								{gameState.openCurrencies.map((currencyCard, index) => (
+									<Grid item key={index}>
+										<Card className={classes.card}>
 											<CardMedia
 												src={currencyCard.image_url}
 												component="img"
@@ -206,80 +214,65 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</Grid>
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						{(true || myState.selectedProperty) && (
+						{myState.selectedProperty && (
 							<>
 								<Grid container spacing={2} justify="flex-start">
-									<Grid
-										item
-										container
-										spacing={1}
-										xs={12}
-										sm={6}
-										alignItems="center"
-										justify="center"
-										zeroMinWidth
-										wrap="wrap"
-										style={{ lineBreak: "anywhere" }}
-									>
-										<Grid item xs={6}>
-											<Typography variant="body1">username123:</Typography>
-										</Grid>
-										<Grid item xs={6}>
-											<Card className={`${classes.card}`}>
-												<CardMedia
-													src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-													component="img"
-													className={classes.cardImage}
-												/>
-												<div className={classes.cardOverlay}></div>
-											</Card>
-										</Grid>
-									</Grid>
-									<Grid
-										item
-										container
-										spacing={1}
-										xs={12}
-										sm={6}
-										alignItems="center"
-										justify="center"
-										zeroMinWidth
-										wrap="wrap"
-										style={{ lineBreak: "anywhere" }}
-									>
-										<Grid item xs={6}>
-											<Typography variant="body1">username123:</Typography>
-										</Grid>
-										<Grid item xs={6}>
-											<Card className={`${classes.card}`}>
-												<CardMedia
-													src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-													component="img"
-													className={classes.cardImage}
-												/>
-												<div className={classes.cardOverlay}></div>
-											</Card>
-										</Grid>
-									</Grid>
-									<Grid
-										item
-										container
-										spacing={1}
-										xs={12}
-										sm={6}
-										alignItems="center"
-										justify="center"
-										zeroMinWidth
-										wrap="wrap"
-										style={{ lineBreak: "anywhere" }}
-									>
-										<Grid item xs={6}>
-											<Typography variant="body1">username123:</Typography>
-										</Grid>
-										<Grid item xs={6}>
-											<Typography variant="subtitle1">Selecting...</Typography>
-										</Grid>
-									</Grid>
+									{gameState.players.map((player) => {
+										return (
+											<Grid
+												item
+												container
+												spacing={1}
+												xs={12}
+												sm={6}
+												alignItems="center"
+												justify="center"
+												zeroMinWidth
+												wrap="wrap"
+												style={{ lineBreak: "anywhere" }}
+												key={player.userId}
+											>
+												<Grid item xs={6}>
+													<Typography variant="body1">
+														{player.username}:
+													</Typography>
+												</Grid>
+												<Grid item xs={6}>
+													{player.selectedProperty === "hidden" && (
+														<Card className={`${classes.card}`}>
+															<CardMedia
+																src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																component="img"
+																className={classes.cardImage}
+															/>
+															<div className={classes.cardOverlay}>
+																{player.isTurn && (
+																	<Typography variant="body1">
+																		SELECTING...
+																	</Typography>
+																)}
+															</div>
+														</Card>
+													)}
+													{player.selectedProperty &&
+														player.selectedProperty !== "hidden" && (
+															<Card className={`${classes.card}`}>
+																<CardMedia
+																	src={player.selectedProperty.image_url}
+																	component="img"
+																	className={classes.cardImage}
+																/>
+																<div className={classes.cardOverlay}>
+																	<Typography variant="h5">
+																		{player.selectedProperty.value}
+																	</Typography>
+																</div>
+															</Card>
+														)}
+												</Grid>
+											</Grid>
+										);
+									})}
 								</Grid>
 								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 							</>
@@ -293,9 +286,9 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							{myState.properties.map((propertyCard, index) => (
 								<Grid item key={propertyCard.value}>
 									<Card
-										className={`${classes.card} ${classes.selectableProperty} ${
-											selectedProperty === index ? "selected" : ""
-										}`}
+										className={`${classes.card} ${
+											myState.isTurn ? classes.selectableProperty : ""
+										} ${selectedProperty === index ? "selected" : ""}`}
 										onClick={() => onPropertySelect(index)}
 									>
 										<CardMedia
@@ -336,6 +329,31 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								);
 							})}
 						</Grid>
+						{myState.currencies.length > 0 && (
+							<>
+								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
+								<Typography variant="h5">My Currencies</Typography>
+								<Grid container item xs spacing={1} justify="flex-start">
+									{myState.currencies.map((currencyCard, index) => (
+										<Grid item key={index}>
+											<Card className={classes.card}>
+												<CardMedia
+													src={currencyCard.image_url}
+													component="img"
+													className={classes.cardImage}
+												/>
+												<div className={classes.cardOverlay}>
+													<Typography variant="h6">
+														{`$ ${numberWithCommas(currencyCard.value)}`}
+													</Typography>
+												</div>
+											</Card>
+										</Grid>
+									))}
+								</Grid>
+							</>
+						)}
+						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 					</div>
 				</div>
 			)}
