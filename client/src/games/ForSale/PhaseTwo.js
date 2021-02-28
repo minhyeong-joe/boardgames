@@ -1,4 +1,5 @@
 import {
+	Badge,
 	Button,
 	Card,
 	CardMedia,
@@ -15,12 +16,15 @@ const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
 	},
+	boardWrapper: {
+		padding: theme.spacing(1),
+	},
+	notTurn: {
+		pointerEvents: "none",
+	},
 	activePlayerName: {
 		color: theme.palette.error.dark,
 		fontWeight: "bold",
-	},
-	boardWrapper: {
-		padding: theme.spacing(1),
 	},
 	propertyRow: {
 		width: "100%",
@@ -84,7 +88,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
 	const [myState, setMyState] = useState(null);
-	const [playersSelecting, setPlayersSelecting] = useState([]);
+	const [activePlayer, setActivePlayer] = useState(null);
 	const [selectedProperty, setSelectedProperty] = useState(null);
 	const [showCard, setShowCard] = useState(false);
 
@@ -92,9 +96,9 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		const me = gameState?.players.find(
 			(player) => player.userId === auth.userInfo._id
 		);
-		const selecting = gameState?.players.filter((player) => player.isTurn);
+		const active = gameState?.players.find((player) => player.isTurn);
+		setActivePlayer(active);
 		setMyState(me);
-		setPlayersSelecting(selecting);
 		if (!me.selectedProperty) {
 			setSelectedProperty(null);
 		}
@@ -103,6 +107,19 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	// debugging purpose
 	useEffect(() => {
 		console.log("PHASE 2", gameState);
+	}, [gameState]);
+
+	useEffect(() => {
+		// if last player confirmed property selection
+		// brief pause, and move onto next round
+		if (gameState && gameState.players.every((player) => player.selected)) {
+			setTimeout(() => {
+				console.log("all selected");
+				// TO DO
+				// set new game state for server to start new round
+				// emit new game state to socket server
+			}, 3000);
+		}
 	}, [gameState]);
 
 	const onPropertySelect = (index) => {
@@ -115,12 +132,20 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	};
 
 	const onConfirmSelection = () => {
+		const next = nextPlayer();
 		const newPlayerState = gameState.players.map((player) => {
 			if (player.userId === myState.userId) {
 				return {
 					...myState,
 					selectedProperty: myState.properties[selectedProperty],
 					isTurn: false,
+					selected: true,
+				};
+			}
+			if (next && player.userId === next.userId) {
+				return {
+					...next,
+					isTurn: true,
 				};
 			}
 			return player;
@@ -149,24 +174,37 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		);
 	};
 
+	const nextPlayer = () => {
+		const currentPlayerIndex = gameState.players.findIndex(
+			(player) => player.userId === activePlayer.userId
+		);
+		for (let i = currentPlayerIndex + 1; i < gameState.players.length; i++) {
+			if (!gameState.players[i].selected) {
+				return gameState.players[i];
+			}
+		}
+		for (let i = 0; i < currentPlayerIndex; i++) {
+			if (!gameState.players[i].selected) {
+				return gameState.players[i];
+			}
+		}
+		return null;
+	};
+
 	return (
 		<>
 			{gameState && myState && (
-				<div className={classes.root}>
+				<div
+					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
+				>
 					<Alert severity="info" variant="filled">
-						{playersSelecting.length > 0 ? (
+						{activePlayer ? (
 							<AlertTitle>
-								Waiting for{" "}
-								{playersSelecting.map((player, index) => (
-									<Fragment key={player.userId}>
-										<span className={classes.activePlayerName}>
-											{player.username}
-										</span>
-										<span>
-											{index === playersSelecting.length - 1 ? "..." : ", "}
-										</span>
-									</Fragment>
-								))}
+								Player{" "}
+								<span className={classes.activePlayerName}>
+									{activePlayer.username}
+								</span>{" "}
+								is making a decision...
 							</AlertTitle>
 						) : (
 							<AlertTitle> New round is about to begin...</AlertTitle>
@@ -195,7 +233,42 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								</Card>
 							</Grid>
 							<Grid container item xs spacing={1} justify="flex-start">
-								{gameState.openCurrencies.map((currencyCard, index) => (
+								{gameState.openCurrencies.map((currencyCard) => {
+									const renderCard = () => (
+										<Card className={`${classes.card}`}>
+											<CardMedia
+												src={currencyCard.image_url}
+												component="img"
+												className={classes.cardImage}
+											/>
+											<div className={classes.cardOverlay}>
+												<Typography variant="h6">
+													{`$ ${numberWithCommas(currencyCard.value)}`}
+												</Typography>
+											</div>
+										</Card>
+									);
+									const taken = currencyCard.taken;
+									return (
+										<Grid item key={currencyCard.value}>
+											{taken ? (
+												<Badge
+													badgeContent={taken}
+													color="primary"
+													anchorOrigin={{
+														vertical: "bottom",
+														horizontal: "left",
+													}}
+												>
+													{renderCard()}
+												</Badge>
+											) : (
+												renderCard()
+											)}
+										</Grid>
+									);
+								})}
+								{/* {gameState.openCurrencies.map((currencyCard, index) => (
 									<Grid item key={index}>
 										<Card className={classes.card}>
 											<CardMedia
@@ -210,11 +283,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											</div>
 										</Card>
 									</Grid>
-								))}
+								))} */}
 							</Grid>
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						{myState.selectedProperty && (
+						{myState.selected && (
 							<>
 								<Grid container spacing={2} justify="flex-start">
 									{gameState.players.map((player) => {
@@ -277,6 +350,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 							</>
 						)}
+						{activePlayer?.userId === myState?.userId && (
+							<Typography variant="h4" align="center" color="error">
+								Your Turn
+							</Typography>
+						)}
 						<Typography variant="h5" align="center">
 							{myState.selectedProperty
 								? "My Properties"
@@ -309,6 +387,10 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								color="primary"
 								className={classes.confirmBtn}
 								onClick={onConfirmSelection}
+								disabled={
+									selectedProperty === null ||
+									activePlayer.userId !== myState.userId
+								}
 							>
 								Confirm
 							</Button>

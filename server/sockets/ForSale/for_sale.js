@@ -40,6 +40,7 @@ const initForSale = (io) => ({ room }) => {
 	}
 	const players = room.members.map((member) => ({
 		userId: member.userId,
+		socketId: member.socketId,
 		username: member.username,
 		isTurn: member.isTurn,
 		coins: initCoins,
@@ -47,6 +48,8 @@ const initForSale = (io) => ({ room }) => {
 		currencies: [],
 		bidding: 0,
 		selectedProperty: null,
+		selected: false,
+		score: null,
 	}));
 	const INITIAL_GAME_STATE = {
 		players: players,
@@ -77,17 +80,16 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 			...serverStatePlayer,
 			isTurn: player.isTurn,
 			bidding: player.bidding,
+			selected: player.selected,
 		};
 	});
-	console.log(players);
 	// phase1's new round about to start
 	// give each player the property card they got
-	// and get open next set of properties if there are more
+	// and open next set of properties if there are more
 	if (
 		newGameState.phase === 1 &&
-		newGameState.openProperties.filter((property) => !property.taken).length ===
-			0 &&
-		players.find((player) => player.isTurn)
+		newGameState.openProperties.every((property) => property.taken) &&
+		players.some((player) => player.isTurn)
 	) {
 		// each player gets prop card to their possession
 		players.forEach((player) => {
@@ -108,9 +110,7 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 			// create game state for phase 2
 			(newGameState.openProperties = []),
 				(newGameState.remainingProperties = 0);
-			players.forEach((player) => {
-				player.isTurn = true;
-			});
+
 			newGameState.openCurrencies = gameState[room.id].currencyDecks.splice(
 				0,
 				players.length
@@ -119,6 +119,25 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 				gameState[room.id].currencyDecks.length;
 			newGameState.phase = 2;
 		}
+	}
+	// phase2's new round about to start
+	// give each player the currency card they got
+	// and open next set of currencies if there are more
+	if (newGameState.phase === 2 && players.every((player) => player.selected)) {
+		console.log("Phase 2 round change - take currencies");
+		const sortedPlayers = players.sort(
+			(a, b) => b.selectedProperty.value - a.selectedProperty.value
+		);
+		sortedPlayers.forEach((sortedPlayer) => {
+			const currencies = newGameState.openCurrencies
+				.filter((currency) => !currency.taken)
+				.map((currency) => currency.value);
+			const maxCurrencyCard = newGameState.openCurrencies.find(
+				(currencyCard) =>
+					currencyCard.value === Math.max(...currencies) && !currencyCard.taken
+			);
+			maxCurrencyCard.taken = sortedPlayer.username;
+		});
 	}
 	const updatedGameState = {
 		...newGameState,
@@ -134,65 +153,65 @@ const updateForSale = (io) => ({ room, newGameState, userId }) => {
 	// give each player the currency card they got
 	// and get open next set of currencies if there are more
 	// make any necessary changes (fetch hidden infos from server-side gameState)
-	if (
-		newGameState.phase === 2 &&
-		players.filter((player) => !player.selectedProperty).length === 0
-	) {
-		console.log("LAST USER SELECTED PROPERTY");
-		setTimeout(() => {
-			const orderedPlayers = [...gameState[room.id].players].sort(
-				(a, b) => b.selectedProperty.value - a.selectedProperty.value
-			);
-			orderedPlayers.forEach((player) => {
-				const currencies = gameState[room.id].openCurrencies
-					.filter((currencyCard) => !currencyCard.taken)
-					.map((currencyCard) => currencyCard.value);
-				const maxCurrencyCard = gameState[room.id].openCurrencies.find(
-					(currencyCard) =>
-						currencyCard.value === Math.max(...currencies) &&
-						!currencyCard.taken
-				);
-				maxCurrencyCard.taken = player.username;
-			});
+	// if (
+	// 	newGameState.phase === 2 &&
+	// 	players.filter((player) => !player.selectedProperty).length === 0
+	// ) {
+	// 	console.log("LAST USER SELECTED PROPERTY");
+	// 	setTimeout(() => {
+	// 		const orderedPlayers = [...gameState[room.id].players].sort(
+	// 			(a, b) => b.selectedProperty.value - a.selectedProperty.value
+	// 		);
+	// 		orderedPlayers.forEach((player) => {
+	// 			const currencies = gameState[room.id].openCurrencies
+	// 				.filter((currencyCard) => !currencyCard.taken)
+	// 				.map((currencyCard) => currencyCard.value);
+	// 			const maxCurrencyCard = gameState[room.id].openCurrencies.find(
+	// 				(currencyCard) =>
+	// 					currencyCard.value === Math.max(...currencies) &&
+	// 					!currencyCard.taken
+	// 			);
+	// 			maxCurrencyCard.taken = player.username;
+	// 		});
 
-			// each player gets currency card to their possession
-			gameState[room.id].players.forEach((player) => {
-				const acquiredCurrency = gameState[room.id].openCurrencies.find(
-					(currency) => currency.taken === player.username
-				);
-				player.currencies.push(acquiredCurrency);
-				player.isTurn = true;
-				player.properties = player.properties.filter(
-					(prop) => prop.value !== player.selectedProperty.value
-				);
-				player.selectedProperty = null;
-			});
-			if (gameState[room.id].remainingCurrencies >= players.length) {
-				gameState[room.id].openCurrencies = gameState[
-					room.id
-				].currencyDecks.splice(0, players.length);
-				gameState[room.id].remainingCurrencies =
-					gameState[room.id].currencyDecks.length;
-			} else {
-				// emit end game state (scores, rank, etc)
-				// TO DO
-				newGameState.openCurrencies = [];
-				newGameState.remainingCurrencies = 0;
-				gameState[room.id].phase = 3;
-				gameState[room.id].players.forEach((player) => {
-					let score = 0;
-					score += player.coins.reduce((sum, coin) => (sum += coin.value), 0);
-					score += player.currencies.reduce(
-						(sum, currency) => (sum += currency.value),
-						0
-					);
-					score /= 1000;
-					player.score = score;
-				});
-			}
-			emitNewGameState(io, room);
-		}, 3000);
-	}
+	// 		// each player gets currency card to their possession
+	// 		gameState[room.id].players.forEach((player) => {
+	// 			const acquiredCurrency = gameState[room.id].openCurrencies.find(
+	// 				(currency) => currency.taken === player.username
+	// 			);
+	// 			player.currencies.push(acquiredCurrency);
+	// 			player.isTurn = true;
+	// 			player.properties = player.properties.filter(
+	// 				(prop) => prop.value !== player.selectedProperty.value
+	// 			);
+	// 			player.selectedProperty = null;
+	// 		});
+	// 		if (gameState[room.id].remainingCurrencies >= players.length) {
+	// 			gameState[room.id].openCurrencies = gameState[
+	// 				room.id
+	// 			].currencyDecks.splice(0, players.length);
+	// 			gameState[room.id].remainingCurrencies =
+	// 				gameState[room.id].currencyDecks.length;
+	// 		} else {
+	// 			// emit end game state (scores, rank, etc)
+	// 			// TO DO
+	// 			newGameState.openCurrencies = [];
+	// 			newGameState.remainingCurrencies = 0;
+	// 			gameState[room.id].phase = 3;
+	// 			gameState[room.id].players.forEach((player) => {
+	// 				let score = 0;
+	// 				score += player.coins.reduce((sum, coin) => (sum += coin.value), 0);
+	// 				score += player.currencies.reduce(
+	// 					(sum, currency) => (sum += currency.value),
+	// 					0
+	// 				);
+	// 				score /= 1000;
+	// 				player.score = score;
+	// 			});
+	// 		}
+	// 		emitNewGameState(io, room);
+	// 	}, 3000);
+	// }
 };
 
 const endForSale = (io) => ({ room }) => {
@@ -218,7 +237,8 @@ const filterGameState = (roomId, userId) => {
 		// if phase 2 and everyone chose property cards, return selectedProperties without filtering
 		const filterSelectedProperty =
 			gameState[roomId].phase === 1 ||
-			gameState[roomId].players.find((player) => player.isTurn);
+			gameState[roomId].players.filter((player) => !player.selectedProperty)
+				.length !== 0;
 		return {
 			...player,
 			coins: "hidden",

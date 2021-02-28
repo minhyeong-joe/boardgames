@@ -212,7 +212,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 					newGameState: gameState,
 					userId: myState.userId,
 				});
-			}, 1000);
+			}, 3000);
 		} else {
 			// pass turn
 			nextTurn.isTurn = true;
