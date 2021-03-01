@@ -315,7 +315,7 @@ const updateForSale = (io) => ({ type, payload, room, userId }) => {
 					acquireCurrencies(gameState);
 					initNewRoundPhaseTwo(nextPlayer, gameState);
 					emitNewGameState(io, room);
-				}, 3000);
+				}, 7500);
 			} else {
 				nextPlayer.isTurn = true;
 				emitNewGameState(io, room);

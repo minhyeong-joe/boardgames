@@ -24,9 +24,9 @@ const useStyles = makeStyles((theme) => ({
 	boardWrapper: {
 		padding: theme.spacing(1),
 	},
-	notTurn: {
-		pointerEvents: "none",
-	},
+	// notTurn: {
+	// 	pointerEvents: "none",
+	// },
 	activePlayerName: {
 		color: theme.palette.error.dark,
 		fontWeight: "bold",
@@ -44,10 +44,8 @@ const useStyles = makeStyles((theme) => ({
 		},
 		"&.waiting": {
 			border: "2px dashed black",
+			boxShadow: "none",
 		},
-	},
-	cardImage: {
-		height: "auto",
 	},
 	cardOverlay: {
 		position: "absolute",
@@ -90,9 +88,45 @@ const useStyles = makeStyles((theme) => ({
 		width: "60px",
 		borderRadius: "100%",
 	},
+	cardImage: {
+		width: "100%",
+	},
+	flipContainer: {
+		width: "120px",
+		height: "160.16px",
+		position: "relative",
+		borderRadius: "12px",
+	},
+	flipCard: {
+		position: "absolute",
+		height: "100%",
+		width: "100%",
+		transformStyle: "preserve-3d",
+		transition: "all 0.5s ease",
+		"&.reveal": {
+			transform: "rotateY(180deg)",
+		},
+	},
+	back: {
+		position: "absolute",
+		height: "100%",
+		width: "100%",
+		backfaceVisibility: "hidden",
+	},
+	front: {
+		position: "absolute",
+		height: "100%",
+		width: "100%",
+		backfaceVisibility: "hidden",
+		transform: "rotateY(180deg)",
+	},
 	[theme.breakpoints.down("xs")]: {
 		card: {
 			width: "70px",
+		},
+		flipContainer: {
+			width: "70px",
+			height: "93.42px",
 		},
 	},
 }));
@@ -103,6 +137,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	const [myState, setMyState] = useState(null);
 	const [activePlayer, setActivePlayer] = useState(null);
 	const [selectedPropertyIndex, setSelectedPropertyIndex] = useState(null);
+	const [showCards, setShowCards] = useState(false);
 
 	useEffect(() => {
 		const me = gameState?.players.find(
@@ -113,6 +148,15 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		setMyState(me);
 		if (!me.selectedProperty) {
 			setSelectedPropertyIndex(null);
+		}
+		// show cards if everyone selected
+		if (gameState?.players.every((player) => player.selected)) {
+			setTimeout(() => {
+				// add card flipping sound here in the future
+				setShowCards(true);
+			}, 1500);
+		} else {
+			setShowCards(false);
 		}
 	}, [gameState]);
 
@@ -157,9 +201,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	return (
 		<>
 			{gameState && myState && (
-				<div
-					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
-				>
+				<div className={classes.root}>
 					<Alert severity="info" variant="standard">
 						{activePlayer ? (
 							<AlertTitle>
@@ -214,7 +256,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 									const taken = currencyCard.taken;
 									return (
 										<Grid item key={index}>
-											{taken ? (
+											{taken && showCards ? (
 												<Badge
 													badgeContent={taken}
 													color="primary"
@@ -258,6 +300,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 													</Typography>
 												</Grid>
 												<Grid item xs={6}>
+													{/* My own card is always visible */}
 													{player.userId === myState.userId && (
 														<Card className={`${classes.card}`}>
 															<CardMedia
@@ -272,8 +315,8 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 															</div>
 														</Card>
 													)}
-													{player.userId !== myState.userId &&
-														player.selected &&
+													{/* Player selected but is hidden yet */}
+													{player.selected &&
 														player.selectedProperty === "hidden" && (
 															<Card className={`${classes.card}`}>
 																<CardMedia
@@ -281,38 +324,59 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 																	component="img"
 																	className={classes.cardImage}
 																/>
-																<div className={`${classes.cardOverlay} front`}>
+																<div className={`${classes.cardOverlay}`}>
 																	<Typography variant="h4">?</Typography>
 																</div>
 															</Card>
 														)}
-													{player.userId !== myState.userId &&
-														!player.selected && (
-															<Card className={`${classes.card} waiting`}>
-																<CardMedia
-																	src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-																	component="img"
-																	className={classes.cardImage}
-																/>
-																<div
-																	className={`${classes.cardOverlay} front`}
-																></div>
-															</Card>
-														)}
+													{/* Player has not selected yet */}
+													{!player.selected && (
+														<Card className={`${classes.card} waiting`}>
+															<CardMedia
+																src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																component="img"
+																className={classes.cardImage}
+															/>
+															<div
+																className={`${classes.cardOverlay} front`}
+															></div>
+														</Card>
+													)}
+													{/* Other players' cards are now revealed */}
 													{player.userId !== myState.userId &&
 														player.selectedProperty !== "hidden" && (
-															<Card className={`${classes.card}`}>
-																<CardMedia
-																	src={player.selectedProperty.image_url}
-																	component="img"
-																	className={classes.cardImage}
-																/>
-																<div className={`${classes.cardOverlay} front`}>
-																	<Typography variant="h5">
-																		{player.selectedProperty.value}
-																	</Typography>
+															<div className={`${classes.flipContainer}`}>
+																<div
+																	className={`${classes.flipCard} ${
+																		showCards ? "reveal" : ""
+																	}`}
+																>
+																	<Card className={classes.back}>
+																		<CardMedia
+																			src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																			component="img"
+																			className={classes.cardImage}
+																		/>
+																		<div className={`${classes.cardOverlay}`}>
+																			<Typography variant="h4">?</Typography>
+																		</div>
+																	</Card>
+																	<Card className={classes.front}>
+																		<CardMedia
+																			src={player.selectedProperty.image_url}
+																			component="img"
+																			className={classes.cardImage}
+																		/>
+																		<div
+																			className={`${classes.cardOverlay} front`}
+																		>
+																			<Typography variant="h5">
+																				{player.selectedProperty.value}
+																			</Typography>
+																		</div>
+																	</Card>
 																</div>
-															</Card>
+															</div>
 														)}
 												</Grid>
 											</Grid>
