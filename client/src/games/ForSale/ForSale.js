@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import GameStart from "./GameStart";
 import PhaseOne from "./PhaseOne";
+import PhaseThree from "./PhaseThree";
 import PhaseTwo from "./PhaseTwo";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,6 +42,9 @@ const ForSale = ({ socket, room }) => {
 			)}
 			{gameState && gameState.phase === 2 && (
 				<PhaseTwo socket={socket} gameState={gameState} room={room} />
+			)}
+			{gameState && gameState.phase === 3 && (
+				<PhaseThree socket={socket} gameState={gameState} room={room} />
 			)}
 		</Grid>
 	);

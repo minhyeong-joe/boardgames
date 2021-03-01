@@ -235,7 +235,23 @@ const initNewRoundPhaseTwo = (firstPlayer, gameState) => {
 		gameState.openCurrencies = [];
 		gameState.remainingCurrencies = 0;
 		gameState.phase = 3;
+		computeFinalScore(gameState);
 	}
+};
+
+// compute score to return for phase 3 (score and ranking)
+// final score = coins.value + currencies.value
+// in case of tie, break with coin (hence score divided into two parts)
+const computeFinalScore = (gameState) => {
+	gameState.players.forEach((player) => {
+		const coinScore =
+			player.coins.reduce((sum, coin) => sum + coin.value, 0) / 1000;
+		const currencyScore =
+			player.currencies.reduce((sum, currency) => sum + currency.value, 0) /
+			1000;
+		player.coinScore = coinScore;
+		player.currencyScore = currencyScore;
+	});
 };
 
 const updateForSale = (io) => ({ type, payload, room, userId }) => {
