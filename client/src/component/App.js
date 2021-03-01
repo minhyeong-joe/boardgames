@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import { BrowserRouter, Route } from "react-router-dom";
 
@@ -14,9 +14,16 @@ import SignUpModal from "./modal/SignUpModal";
 import CreateRoomModal from "./modal/CreateRoomModal";
 import RoomPasswordModal from "./modal/RoomPasswordModal";
 import FlashMessage from "./FlashMessage";
+import { useDispatch } from "react-redux";
+import { getUserInfo } from "../actions";
 
 const App = () => {
+	const dispatch = useDispatch();
 	console.log(process.env);
+	// on refresh, the redux store will get updated from session
+	useEffect(() => {
+		dispatch(getUserInfo());
+	}, []);
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />

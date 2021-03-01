@@ -35,11 +35,6 @@ const Header = () => {
 	const dispatch = useDispatch();
 	const auth = useSelector((state) => state.auth);
 
-	// on refresh, the redux store will get updated from session
-	useEffect(() => {
-		dispatch(getUserInfo());
-	}, []);
-
 	const handleModalOpen = () => {
 		dispatch(openModal({ modalName: LOGIN_MODAL }));
 	};

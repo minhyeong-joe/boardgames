@@ -104,6 +104,10 @@ const ChatLog = ({ messages, logs, socket }) => {
 		scrollToBottom();
 	}, [tab, autoscroll, messages, logs]);
 
+	useEffect(() => {
+		console.log("new message");
+	}, [messages]);
+
 	const handleTabChange = (e, newVal) => {
 		setTab(newVal);
 	};
