@@ -188,7 +188,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								</Card>
 							</Grid>
 							<Grid container item xs spacing={1} justify="flex-start">
-								{gameState.openCurrencies.map((currencyCard) => {
+								{gameState.openCurrencies.map((currencyCard, index) => {
 									const renderCard = () => (
 										<Card className={`${classes.card}`}>
 											<CardMedia
@@ -205,7 +205,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 									);
 									const taken = currencyCard.taken;
 									return (
-										<Grid item key={currencyCard.value}>
+										<Grid item key={index}>
 											{taken ? (
 												<Badge
 													badgeContent={taken}
@@ -223,22 +223,6 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 										</Grid>
 									);
 								})}
-								{/* {gameState.openCurrencies.map((currencyCard, index) => (
-									<Grid item key={index}>
-										<Card className={classes.card}>
-											<CardMedia
-												src={currencyCard.image_url}
-												component="img"
-												className={classes.cardImage}
-											/>
-											<div className={classes.cardOverlay}>
-												<Typography variant="h6">
-													{`$ ${numberWithCommas(currencyCard.value)}`}
-												</Typography>
-											</div>
-										</Card>
-									</Grid>
-								))} */}
 							</Grid>
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
@@ -361,7 +345,9 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</Button>
 						)}
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						<Typography>My Coins: $ {remainingCoins()}</Typography>
+						<Typography variant="overline" style={{ marginBottom: "12px" }}>
+							My Coins: $ {remainingCoins()}
+						</Typography>
 						<Grid container spacing={1} justify="flex-start">
 							{myState.coins.map((coin, index) => {
 								return (
@@ -400,7 +386,6 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								</Grid>
 							</>
 						)}
-						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 					</div>
 				</div>
 			)}

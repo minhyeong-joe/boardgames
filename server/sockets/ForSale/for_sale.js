@@ -39,6 +39,12 @@ const initForSale = (io) => ({ room }) => {
 			initCoins.push(COINS[1000]);
 		}
 	}
+	initPropertyDeck.forEach((property) => {
+		property.taken = null;
+	});
+	initCurrencyDeck.forEach((currency) => {
+		currency.taken = null;
+	});
 	const players = room.members.map((member) => ({
 		userId: member.userId,
 		socketId: member.socketId,
@@ -262,12 +268,12 @@ const updateForSale = (io) => ({ type, payload, room, userId }) => {
 		// PHASE 1 on player pass
 		case TYPES.PASS:
 			nextPlayer = nextPlayerPhaseOne(gameState, currentPlayer);
-			// bidding = null to indicate this player is done for current round (no more turns)
-			currentPlayer.bidding = null;
 			// player takes the lowest possible open property (mark it as taken)
 			claimLowestProperty(currentPlayer, gameState);
 			// refund half amount coins
 			refundCoins(currentPlayer);
+			// bidding = null to indicate this player is done for current round (no more turns)
+			currentPlayer.bidding = null;
 			currentPlayer.isTurn = false;
 			// if only one player is left, then automatically pass that player and player gets the highest (last remaining) card
 			if (
