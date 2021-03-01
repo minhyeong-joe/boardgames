@@ -52,6 +52,12 @@ const useStyles = makeStyles((theme) => ({
 		"& *": {
 			color: "white",
 		},
+		"&.front": {
+			backgroundColor: "white",
+			"& *": {
+				color: "black",
+			},
+		},
 	},
 	activePlayerName: {
 		color: theme.palette.error.dark,
@@ -156,7 +162,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 				<div
 					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
 				>
-					<Alert severity="info" variant="filled">
+					<Alert severity="info" variant="standard">
 						{activePlayer ? (
 							<AlertTitle>
 								Player{" "}
@@ -178,7 +184,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 							spacing={2}
 						>
 							<Grid item>
-								<Card className={`${classes.backOfCard} ${classes.card}`}>
+								<Card className={classes.card}>
 									<CardMedia
 										src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
 										component="img"
@@ -194,13 +200,13 @@ const PhaseOne = ({ socket, gameState, room }) => {
 							<Grid container item xs spacing={1} justify="flex-start">
 								{gameState.openProperties.map((propertyCard) => {
 									const renderCard = () => (
-										<Card className={`${classes.card}`}>
+										<Card className={classes.card}>
 											<CardMedia
 												src={propertyCard.image_url}
 												component="img"
 												className={classes.cardImage}
 											/>
-											<div className={classes.cardOverlay}>
+											<div className={`${classes.cardOverlay} front`}>
 												<Typography variant="h5">
 													{propertyCard.value}
 												</Typography>
@@ -318,7 +324,7 @@ const PhaseOne = ({ socket, gameState, room }) => {
 											component="img"
 											className={classes.cardImage}
 										/>
-										<div className={classes.cardOverlay}>
+										<div className={`${classes.cardOverlay} front`}>
 											<Typography variant="h5">{propertyCard.value}</Typography>
 										</div>
 									</Card>

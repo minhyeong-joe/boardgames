@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
 			border: "2px solid orange",
 			boxShadow: "0 0 10px orange",
 		},
+		"&.waiting": {
+			border: "2px dashed black",
+		},
 	},
 	cardImage: {
 		height: "auto",
@@ -59,11 +62,16 @@ const useStyles = makeStyles((theme) => ({
 		"& *": {
 			color: "white",
 		},
+		"&.front": {
+			backgroundColor: "white",
+			"& *": {
+				color: "black",
+			},
+		},
 	},
 	selectableProperty: {
 		cursor: "pointer",
 		border: "2px solid transparent",
-		boxShadow: "none",
 	},
 	confirmBtn: {
 		marginLeft: "auto",
@@ -152,7 +160,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 				<div
 					className={`${classes.root} ${myState.isTurn ? "" : classes.notTurn}`}
 				>
-					<Alert severity="info" variant="filled">
+					<Alert severity="info" variant="standard">
 						{activePlayer ? (
 							<AlertTitle>
 								Player{" "}
@@ -196,7 +204,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 												component="img"
 												className={classes.cardImage}
 											/>
-											<div className={classes.cardOverlay}>
+											<div className={`${classes.cardOverlay} front`}>
 												<Typography variant="h6">
 													{`$ ${numberWithCommas(currencyCard.value)}`}
 												</Typography>
@@ -250,33 +258,48 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 													</Typography>
 												</Grid>
 												<Grid item xs={6}>
-													{player.selectedProperty === "hidden" && (
+													{player.userId === myState.userId && (
 														<Card className={`${classes.card}`}>
 															<CardMedia
-																src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																src={player.selectedProperty.image_url}
 																component="img"
 																className={classes.cardImage}
 															/>
-															<div className={classes.cardOverlay}>
-																{player.isTurn && (
-																	<Typography variant="body1">
-																		SELECTING...
-																	</Typography>
-																)}
-																{player.selected && (
-																	<Typography variant="body1">
-																		SELECTED
-																	</Typography>
-																)}
-																{!player.isTurn && !player.selected && (
-																	<Typography variant="body1">
-																		WAITING...
-																	</Typography>
-																)}
+															<div className={`${classes.cardOverlay} front`}>
+																<Typography variant="h5">
+																	{player.selectedProperty.value}
+																</Typography>
 															</div>
 														</Card>
 													)}
-													{player.selectedProperty &&
+													{player.userId !== myState.userId &&
+														player.selected &&
+														player.selectedProperty === "hidden" && (
+															<Card className={`${classes.card}`}>
+																<CardMedia
+																	src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																	component="img"
+																	className={classes.cardImage}
+																/>
+																<div className={`${classes.cardOverlay} front`}>
+																	<Typography variant="h4">?</Typography>
+																</div>
+															</Card>
+														)}
+													{player.userId !== myState.userId &&
+														!player.selected && (
+															<Card className={`${classes.card} waiting`}>
+																<CardMedia
+																	src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																	component="img"
+																	className={classes.cardImage}
+																/>
+																<div
+																	className={`${classes.cardOverlay} front`}
+																></div>
+															</Card>
+														)}
+													{player.userId !== myState.userId &&
 														player.selectedProperty !== "hidden" && (
 															<Card className={`${classes.card}`}>
 																<CardMedia
@@ -284,7 +307,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 																	component="img"
 																	className={classes.cardImage}
 																/>
-																<div className={classes.cardOverlay}>
+																<div className={`${classes.cardOverlay} front`}>
 																	<Typography variant="h5">
 																		{player.selectedProperty.value}
 																	</Typography>
@@ -300,7 +323,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</>
 						)}
 						{activePlayer?.userId === myState?.userId && (
-							<Typography variant="h4" align="center" color="error">
+							<Typography variant="h5" align="center" color="error">
 								Your Turn
 							</Typography>
 						)}
@@ -323,7 +346,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											component="img"
 											className={classes.cardImage}
 										/>
-										<div className={classes.cardOverlay}>
+										<div className={`${classes.cardOverlay} front`}>
 											<Typography variant="h5">{propertyCard.value}</Typography>
 										</div>
 									</Card>
@@ -375,7 +398,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 													component="img"
 													className={classes.cardImage}
 												/>
-												<div className={classes.cardOverlay}>
+												<div className={`${classes.cardOverlay} front`}>
 													<Typography variant="h6">
 														{`$ ${numberWithCommas(currencyCard.value)}`}
 													</Typography>

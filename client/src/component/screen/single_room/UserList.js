@@ -54,24 +54,30 @@ const UserList = ({ members }) => {
 
 	return (
 		<div className={classes.root}>
-			{members &&
-				members.map((member) => {
-					return (
-						<MenuItem key={member.userId}>
-							<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
-								{member.username}
-								{member.isOwner ? <FaCrown className={classes.crown} /> : null}
-								{member.isTurn ? (
-									<img
-										src={FirstIcon}
-										className={classes.firstIcon}
-										alt="first"
-									/>
-								) : null}
-							</Typography>
-						</MenuItem>
-					);
-				})}
+			<Grid container>
+				{members &&
+					members.map((member) => {
+						return (
+							<Grid item xs={12} sm={6} md={12} key={member.userId}>
+								<MenuItem>
+									<Typography variant="body2" style={{ fontSize: "1.2rem" }}>
+										{member.username}
+										{member.isOwner ? (
+											<FaCrown className={classes.crown} />
+										) : null}
+										{member.isTurn ? (
+											<img
+												src={FirstIcon}
+												className={classes.firstIcon}
+												alt="first"
+											/>
+										) : null}
+									</Typography>
+								</MenuItem>
+							</Grid>
+						);
+					})}
+			</Grid>
 		</div>
 	);
 };
