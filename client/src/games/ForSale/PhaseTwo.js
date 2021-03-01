@@ -12,6 +12,11 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
+// update type constants (manual sync with server-side constant needed)
+const TYPES = {
+	CONFIRM_PROPERTY: "CONFIRM_PROPERTY",
+};
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
@@ -89,7 +94,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	const auth = useSelector((state) => state.auth);
 	const [myState, setMyState] = useState(null);
 	const [activePlayer, setActivePlayer] = useState(null);
-	const [selectedProperty, setSelectedProperty] = useState(null);
+	const [selectedPropertyIndex, setSelectedPropertyIndex] = useState(null);
 
 	useEffect(() => {
 		const me = gameState?.players.find(
@@ -99,7 +104,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		setActivePlayer(active);
 		setMyState(me);
 		if (!me.selectedProperty) {
-			setSelectedProperty(null);
+			setSelectedPropertyIndex(null);
 		}
 	}, [gameState]);
 
@@ -110,58 +115,23 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 
 	const onPropertySelect = (index) => {
 		if (!myState.isTurn) return;
-		if (index === selectedProperty) {
-			setSelectedProperty(null);
+		if (index === selectedPropertyIndex) {
+			setSelectedPropertyIndex(null);
 		} else {
-			setSelectedProperty(index);
+			setSelectedPropertyIndex(index);
 		}
 	};
 
 	const onConfirmSelection = () => {
-		const next = nextPlayer();
-		const newPlayerState = gameState.players.map((player) => {
-			if (player.userId === myState.userId) {
-				return {
-					...myState,
-					selectedProperty: myState.properties[selectedProperty],
-					isTurn: false,
-					selected: true,
-				};
-			}
-			if (next && player.userId === next.userId) {
-				return {
-					...next,
-					isTurn: true,
-				};
-			}
-			return player;
-		});
-		const newGameState = {
-			...gameState,
-			players: newPlayerState,
-		};
-		console.log(newGameState);
 		socket.emit("updateForSale", {
+			type: TYPES.CONFIRM_PROPERTY,
+			payload: {
+				selectedPropertyIndex,
+			},
 			room,
-			newGameState,
 			userId: myState.userId,
 		});
-		// if last player confirmed property selection
-		// brief pause, and move onto next round
-		if (gameState.players.filter((player) => !player.selected).length === 1) {
-			setTimeout(() => {
-				console.log("all selected");
-				// TO DO
-				// set new game state for server to start new round
-				// emit new game state to socket server
-				console.log("NewRoundState:", newGameState);
-				socket.emit("updateForSale", {
-					room,
-					newGameState,
-					userId: myState.userId,
-				});
-			}, 3000);
-		}
+		setSelectedPropertyIndex(null);
 	};
 
 	// Utility to display coin values with commas in every three digits
@@ -174,23 +144,6 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		return numberWithCommas(
 			myState.coins.reduce((acc, coin) => acc + coin.value, 0)
 		);
-	};
-
-	const nextPlayer = () => {
-		const currentPlayerIndex = gameState.players.findIndex(
-			(player) => player.userId === activePlayer.userId
-		);
-		for (let i = currentPlayerIndex + 1; i < gameState.players.length; i++) {
-			if (!gameState.players[i].selected) {
-				return gameState.players[i];
-			}
-		}
-		for (let i = 0; i < currentPlayerIndex; i++) {
-			if (!gameState.players[i].selected) {
-				return gameState.players[i];
-			}
-		}
-		return null;
 	};
 
 	return (
@@ -326,6 +279,16 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 																		SELECTING...
 																	</Typography>
 																)}
+																{player.selected && (
+																	<Typography variant="body1">
+																		SELECTED
+																	</Typography>
+																)}
+																{!player.isTurn && !player.selected && (
+																	<Typography variant="body1">
+																		WAITING...
+																	</Typography>
+																)}
 															</div>
 														</Card>
 													)}
@@ -358,7 +321,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</Typography>
 						)}
 						<Typography variant="h5" align="center">
-							{myState.selectedProperty
+							{myState.selectedProperty || !myState.isTurn
 								? "My Properties"
 								: "Select a Property to Sell"}
 						</Typography>
@@ -368,7 +331,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 									<Card
 										className={`${classes.card} ${
 											myState.isTurn ? classes.selectableProperty : ""
-										} ${selectedProperty === index ? "selected" : ""}`}
+										} ${selectedPropertyIndex === index ? "selected" : ""}`}
 										onClick={() => onPropertySelect(index)}
 									>
 										<CardMedia
@@ -383,14 +346,14 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 								</Grid>
 							))}
 						</Grid>
-						{!myState.selectedProperty && (
+						{!myState.selected && myState.isTurn && (
 							<Button
 								variant="contained"
 								color="primary"
 								className={classes.confirmBtn}
 								onClick={onConfirmSelection}
 								disabled={
-									selectedProperty === null ||
+									selectedPropertyIndex === null ||
 									activePlayer.userId !== myState.userId
 								}
 							>

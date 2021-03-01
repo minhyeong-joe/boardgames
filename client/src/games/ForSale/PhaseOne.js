@@ -11,17 +11,11 @@ import {
 import { Alert, AlertTitle } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import tempImage from "../../assets/image/boardgame_temp.png";
 
-const COINS = {
-	1000: {
-		value: 1000,
-		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale8.jpg",
-	},
-	2000: {
-		value: 2000,
-		image_url: "https://www.ultraboardgames.com/for-sale/gfx/forsale9.jpg",
-	},
+// update type constants (manual sync with server-side constant needed)
+const TYPES = {
+	BID: "BID",
+	PASS: "PASS",
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -89,9 +83,9 @@ const useStyles = makeStyles((theme) => ({
 const PhaseOne = ({ socket, gameState, room }) => {
 	const classes = useStyles();
 	const auth = useSelector((state) => state.auth);
-	const [selectedCoins, setSelectedCoins] = useState([]);
 	const [activePlayer, setActivePlayer] = useState(null);
 	const [myState, setMyState] = useState(null);
+	const [selectedCoins, setSelectedCoins] = useState([]);
 	const [selectedValues, setSelectedValues] = useState(0);
 
 	useEffect(() => {
@@ -113,169 +107,29 @@ const PhaseOne = ({ socket, gameState, room }) => {
 		}
 	};
 
-	const nextPlayer = () => {
-		const currentPlayerIndex = gameState.players.findIndex(
-			(player) => player.userId === activePlayer.userId
-		);
-		for (let i = currentPlayerIndex + 1; i < gameState.players.length; i++) {
-			if (gameState.players[i].bidding !== null) {
-				return gameState.players[i];
-			}
-		}
-		for (let i = 0; i < currentPlayerIndex; i++) {
-			if (gameState.players[i].bidding !== null) {
-				return gameState.players[i];
-			}
-		}
-		return null;
-	};
-
 	const onBidClick = () => {
-		// pass turn
-		const nextTurn = nextPlayer();
-		nextTurn.isTurn = true;
-		myState.isTurn = false;
-
-		const newPlayerState = gameState.players.map((player) => {
-			if (player.userId === myState.userId) {
-				return {
-					...myState,
-					coins: myState.coins.filter(
-						(coin, index) => !selectedCoins.includes(index)
-					),
-					bidding: selectedValues + myState.bidding,
-				};
-			}
-			return player;
-		});
-		const newGameState = {
-			...gameState,
-			players: newPlayerState,
-		};
-		console.log(newGameState);
-		setSelectedCoins([]);
-		setSelectedValues(0);
 		socket.emit("updateForSale", {
+			type: TYPES.BID,
+			payload: {
+				selectedCoinsIndex: selectedCoins,
+			},
 			room,
-			newGameState,
 			userId: myState.userId,
 		});
+		// unset selected coins from client-side view
+		setSelectedCoins([]);
+		setSelectedValues(0);
 	};
 
 	const onPassClick = () => {
-		getRefund();
-		claimLowestProperty();
-		const nextTurn = nextPlayer();
-		myState.isTurn = false;
-
-		// if one of the last two passes
-		// the other one automatically gets highest card and move onto next round
-		if (
-			gameState.openProperties.filter((property) => !property.taken).length ===
-			1
-		) {
-			gameState.openProperties.find((property) => !property.taken).taken =
-				nextTurn.username;
-			const newPlayerState = gameState.players.map((player) => {
-				if (player.userId === myState.userId) {
-					return {
-						...myState,
-						coins: myState.coins,
-						bidding: null,
-					};
-				}
-				if (player.userId === nextTurn.userId) {
-					return {
-						...nextTurn,
-						bidding: null,
-					};
-				}
-				return player;
-			});
-			const newGameState = {
-				...gameState,
-				players: newPlayerState,
-			};
-			console.log(newGameState);
-			setSelectedCoins([]);
-			setSelectedValues(0);
-			socket.emit("updateForSale", {
-				room,
-				newGameState,
-				userId: myState.userId,
-			});
-			// after brief pause, start next round
-			setTimeout(() => {
-				nextTurn.isTurn = true;
-				socket.emit("updateForSale", {
-					room,
-					newGameState: gameState,
-					userId: myState.userId,
-				});
-			}, 3000);
-		} else {
-			// pass turn
-			nextTurn.isTurn = true;
-
-			const newPlayerState = gameState.players.map((player) => {
-				if (player.userId === myState.userId) {
-					return {
-						...myState,
-						coins: myState.coins,
-						bidding: null,
-					};
-				}
-				return player;
-			});
-			const newGameState = {
-				...gameState,
-				players: newPlayerState,
-			};
-			console.log(newGameState);
-			setSelectedCoins([]);
-			setSelectedValues(0);
-			socket.emit("updateForSale", {
-				room,
-				newGameState,
-				userId: myState.userId,
-			});
-		}
-	};
-
-	// get half rounded down refund for passing
-	const getRefund = () => {
-		let maxNumOf2000 =
-			2 - myState.coins.filter((coin) => coin.value === 2000).length;
-		console.log(maxNumOf2000);
-		let refund = Math.floor(myState.bidding / 2000) * 1000;
-		let num2000 = 0;
-		let num1000 = 0;
-		while (refund >= 2000 && maxNumOf2000 > 0) {
-			num2000 += 1;
-			refund -= 2000;
-			maxNumOf2000 -= 1;
-		}
-		num1000 = refund / 1000;
-		for (let i = 0; i < num1000; i++) {
-			myState.coins.push(COINS[1000]);
-		}
-		for (let i = 0; i < num2000; i++) {
-			myState.coins.push(COINS[2000]);
-		}
-		myState.coins.sort((a, b) => b.value - a.value);
-	};
-
-	// get lowest property available
-	const claimLowestProperty = () => {
-		let min = 31;
-		let minIndex;
-		gameState.openProperties.forEach((property, index) => {
-			if (property.value < min && !property.taken) {
-				min = property.value;
-				minIndex = index;
-			}
+		socket.emit("updateForSale", {
+			type: TYPES.PASS,
+			room,
+			userId: myState.userId,
 		});
-		gameState.openProperties[minIndex].taken = myState.username;
+		// unset selected coins from client-side view
+		setSelectedCoins([]);
+		setSelectedValues(0);
 	};
 
 	// Utility to display coin values with commas in every three digits
