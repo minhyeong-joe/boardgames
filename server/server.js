@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const socketio = require("socket.io");
 const http = require("http");
 const bodyParser = require("body-parser");
@@ -63,9 +64,15 @@ mongoose
 	)
 	.catch((err) => console.log(err));
 
+app.use(express.static(path.join(__dirname, "../client/build")));
+
 // API routes
 const userRoute = require("./routes/users");
 app.use("/api/users", userRoute);
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
 
 // socketio
 require("./sockets/core")(io);
