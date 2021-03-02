@@ -43,6 +43,7 @@ const PhaseThree = ({ socket, gameState, room }) => {
 	const auth = useSelector((state) => state.auth);
 
 	useEffect(() => {
+		socket.emit("moveTurn", { roomId: room.id });
 		setTimeout(() => {
 			setShowStart(true);
 		}, 5000);

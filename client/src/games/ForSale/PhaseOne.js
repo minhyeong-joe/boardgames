@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 			color: "white",
 		},
 		"&.front": {
-			backgroundColor: "white",
+			backgroundColor: "lightblue",
 			"& *": {
 				color: "black",
 			},
@@ -63,6 +63,10 @@ const useStyles = makeStyles((theme) => ({
 		color: theme.palette.error.dark,
 		fontWeight: "bold",
 	},
+	biddingStatus: {
+		border: "1px solid #aaa",
+		padding: theme.spacing(1),
+	},
 	coinImage: {
 		width: "60px",
 		cursor: "pointer",
@@ -70,6 +74,14 @@ const useStyles = makeStyles((theme) => ({
 		"&.selected": {
 			border: "2px solid orange",
 			boxShadow: "0 0 10px orange",
+		},
+	},
+	coinStatusTable: {
+		borderTop: `1px solid #aaa`,
+		borderBottom: `1px solid #aaa`,
+		marginTop: theme.spacing(1),
+		"&>.MuiGrid-item:first-child, &>.MuiGrid-item:nth-child(2)": {
+			borderRight: `1px solid #aaa`,
 		},
 	},
 	btnGroup: {
@@ -82,6 +94,12 @@ const useStyles = makeStyles((theme) => ({
 	[theme.breakpoints.down("xs")]: {
 		cardImage: {
 			width: "70px",
+		},
+		coinStatusTable: {
+			"&>.MuiGrid-item:first-child, &>.MuiGrid-item:nth-child(2)": {
+				borderRight: "none",
+				borderBottom: `1px solid #aaa`,
+			},
 		},
 	},
 }));
@@ -240,14 +258,14 @@ const PhaseOne = ({ socket, gameState, room }) => {
 						<Grid container className={classes.biddingRow} spacing={1}>
 							{gameState.players.map((player) => {
 								return (
-									<Grid item xs={6} key={player.userId}>
+									<Grid item xs={12} sm={6} key={player.userId}>
 										<Typography
 											variant="h6"
-											className={
+											className={`${
 												activePlayer && player.userId === activePlayer.userId
 													? classes.activePlayerName
 													: ""
-											}
+											} ${classes.biddingStatus}`}
 										>
 											{player.username}:{" "}
 											{player.bidding || player.bidding === 0
@@ -276,7 +294,12 @@ const PhaseOne = ({ socket, gameState, room }) => {
 								);
 							})}
 						</Grid>
-						<Grid container spacing={2} justify="center">
+						<Grid
+							container
+							spacing={2}
+							justify="center"
+							className={classes.coinStatusTable}
+						>
 							<Grid item xs={12} sm={4}>
 								<Typography>Remaining: $ {remainingCoins()}</Typography>
 							</Grid>
@@ -313,24 +336,30 @@ const PhaseOne = ({ socket, gameState, room }) => {
 								Pass
 							</Button>
 						</div>
-						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						<Typography variant="overline">My Properties</Typography>
-						<Grid container item xs spacing={1} justify="flex-start">
-							{myState.properties.map((propertyCard) => (
-								<Grid item key={propertyCard.value}>
-									<Card className={`${classes.card}`}>
-										<CardMedia
-											src={propertyCard.image_url}
-											component="img"
-											className={classes.cardImage}
-										/>
-										<div className={`${classes.cardOverlay} front`}>
-											<Typography variant="h5">{propertyCard.value}</Typography>
-										</div>
-									</Card>
+						{myState && myState.properties.length > 0 && (
+							<>
+								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
+								<Typography variant="overline">My Properties</Typography>
+								<Grid container item xs spacing={1} justify="flex-start">
+									{myState.properties.map((propertyCard) => (
+										<Grid item key={propertyCard.value}>
+											<Card className={`${classes.card}`}>
+												<CardMedia
+													src={propertyCard.image_url}
+													component="img"
+													className={classes.cardImage}
+												/>
+												<div className={`${classes.cardOverlay} front`}>
+													<Typography variant="h5">
+														{propertyCard.value}
+													</Typography>
+												</div>
+											</Card>
+										</Grid>
+									))}
 								</Grid>
-							))}
-						</Grid>
+							</>
+						)}
 					</div>
 				</div>
 			)}
