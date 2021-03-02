@@ -11,7 +11,7 @@ import {
 	TableRow,
 	Typography,
 } from "@material-ui/core";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import GameStart from "./GameStart";
 
@@ -43,11 +43,17 @@ const PhaseThree = ({ socket, gameState, room }) => {
 	const auth = useSelector((state) => state.auth);
 
 	useEffect(() => {
-		socket.emit("moveTurn", { roomId: room.id });
 		setTimeout(() => {
 			setShowStart(true);
 		}, 5000);
 	}, []);
+
+	useEffect(() => {
+		const ownerId = room.members.find((member) => member.isOwner).userId;
+		if (ownerId === auth.userInfo?._id) {
+			socket.emit("moveTurn", { roomId: room.id });
+		}
+	}, [auth]);
 
 	useEffect(() => {
 		const playerRanking = [];

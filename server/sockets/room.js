@@ -140,6 +140,8 @@ const moveTurn = (io) => (payload) => {
 	} else {
 		roomToModify.members[currentFirstPlayerIndex + 1].isTurn = true;
 	}
+	console.log(`move Turn at ${roomId} from index ${currentFirstPlayerIndex}`);
+	console.log(roomToModify);
 	io.in(roomId).emit("updateRoom", { room: roomToModify });
 };
 
@@ -211,7 +213,7 @@ const userExit = (io, socket) => {
 				room.isPlaying = false;
 				switch (room.gameId) {
 					case "4d6d6d26-3baa-4782-b06c-d5fb15f43e2b":
-						endForSale(io)({ room });
+						endForSale(io)(room);
 						break;
 
 					default:

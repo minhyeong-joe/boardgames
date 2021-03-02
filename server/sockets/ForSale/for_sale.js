@@ -175,6 +175,9 @@ const initNewRoundPhaseOne = (firstPlayer, gameState) => {
 		);
 		gameState.remainingProperties = gameState.propertyDecks.length;
 	} else {
+		gameState.players.forEach((player) => {
+			player.properties.sort((a, b) => a.value - b.value);
+		});
 		gameState.openProperties = [];
 		gameState.remainingProperties = 0;
 		gameState.openCurrencies = gameState.currencyDecks.splice(
@@ -340,7 +343,7 @@ const updateForSale = (io) => ({ type, payload, room, userId }) => {
 	}
 };
 
-const endForSale = (io) => ({ room }) => {
+const endForSale = (io) => (room) => {
 	gameStates[room.id] = null;
 	delete gameStates[room.id];
 	io.in(room.id).emit("updateGameState", null);

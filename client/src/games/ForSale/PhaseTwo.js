@@ -103,6 +103,7 @@ const useStyles = makeStyles((theme) => ({
 		width: "100%",
 		transformStyle: "preserve-3d",
 		transition: "all 0.5s ease",
+		borderRadius: "12px",
 		"&.reveal": {
 			transform: "rotateY(180deg)",
 		},
@@ -112,6 +113,7 @@ const useStyles = makeStyles((theme) => ({
 		height: "100%",
 		width: "100%",
 		backfaceVisibility: "hidden",
+		borderRadius: "12px",
 	},
 	front: {
 		position: "absolute",
@@ -119,6 +121,7 @@ const useStyles = makeStyles((theme) => ({
 		width: "100%",
 		backfaceVisibility: "hidden",
 		transform: "rotateY(180deg)",
+		borderRadius: "12px",
 	},
 	[theme.breakpoints.down("xs")]: {
 		card: {
@@ -280,10 +283,10 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							<>
 								<Grid container spacing={2} justify="flex-start">
 									{gameState.players.map((player) => (
-										<>
+										<Fragment key={player.userId}>
 											{/* My own card is always visible */}
 											{player.userId === myState.userId && (
-												<Grid item key={player.userId}>
+												<Grid item>
 													<Card className={classes.card}>
 														<CardMedia
 															src={player.selectedProperty.image_url}
@@ -303,7 +306,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											)}
 											{/* Player selected but is hidden yet */}
 											{player.selected && player.selectedProperty === "hidden" && (
-												<Grid item key={`${player.userId}-selected-hidden`}>
+												<Grid item>
 													<Card className={classes.card}>
 														<CardMedia
 															src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
@@ -321,7 +324,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											)}
 											{/* Player has not selected yet */}
 											{!player.selected && (
-												<Grid item key={`${player.userId}-not-selected`}>
+												<Grid item>
 													<Card className={`${classes.card} waiting`}>
 														<CardMedia
 															src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
@@ -340,7 +343,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											{/* Other players' cards are now revealed */}
 											{player.userId !== myState.userId &&
 												player.selectedProperty !== "hidden" && (
-													<Grid item key={`${player.userId}-revealed`}>
+													<Grid item>
 														<div className={`${classes.flipContainer}`}>
 															<div
 																className={`${classes.flipCard} ${
@@ -378,7 +381,7 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 														</Typography>
 													</Grid>
 												)}
-										</>
+										</Fragment>
 									))}
 								</Grid>
 								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
