@@ -11,7 +11,9 @@ import {
 	TableRow,
 	Typography,
 } from "@material-ui/core";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import GameStart from "./GameStart";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -20,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 		flexDirection: "column",
 		justifyContent: "center",
 		alignItems: "center",
+		height: "100%",
 	},
 	scoreBoard: {
 		maxWidth: "600px",
@@ -35,17 +38,41 @@ const useStyles = makeStyles((theme) => ({
 
 const PhaseThree = ({ socket, gameState, room }) => {
 	const classes = useStyles();
+	const [showStart, setShowStart] = useState(false);
+	const [ranking, setRanking] = useState([]);
+	const auth = useSelector((state) => state.auth);
 
 	useEffect(() => {
-		console.log(gameState);
+		setTimeout(() => {
+			setShowStart(true);
+		}, 5000);
+	}, []);
+
+	useEffect(() => {
+		const playerRanking = [];
+		gameState?.players.forEach((player) => {
+			playerRanking.push({
+				username: player.username,
+				coinScore: player.coinScore,
+				totalScore: player.coinScore + player.currencyScore,
+			});
+		});
+		playerRanking.sort((a, b) => {
+			if (a.totalScore > b.totalScore) return -1;
+			else if (a.totalScore < b.totalScore) return 1;
+			else {
+				if (a.coinScore > b.coinScore) return -1;
+				else return 1;
+			}
+		});
+		setRanking(playerRanking);
 	}, [gameState]);
 
 	return (
 		<div className={classes.root}>
-			<Button variant="contained" color="primary">
-				Start Game
-			</Button>
-			<Typography variant="h5">Waiting for owner to start game</Typography>
+			{showStart && (
+				<GameStart socket={socket} gameState={gameState} room={room} />
+			)}
 			<Paper className={classes.scoreBoard}>
 				<Typography variant="h4" align="center">
 					Score Board
@@ -62,44 +89,27 @@ const PhaseThree = ({ socket, gameState, room }) => {
 									<Typography variant="overline">USERNAME</Typography>
 								</TableCell>
 								<TableCell size="small" align="center">
-									<Typography variant="overline">SCORE</Typography>
+									<Typography variant="overline">SCORE (Coins)</Typography>
 								</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							<TableRow>
-								<TableCell component="th" scope="row">
-									<Typography variant="subtitle1">1.</Typography>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body1">username123</Typography>
-								</TableCell>
-								<TableCell align="center">
-									<Typography variant="body1">85</Typography>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell component="th" scope="row">
-									<Typography variant="subtitle1">2.</Typography>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body1">user895412</Typography>
-								</TableCell>
-								<TableCell align="center">
-									<Typography variant="body1">81</Typography>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell component="th" scope="row">
-									<Typography variant="subtitle1">3.</Typography>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body1">user899063</Typography>
-								</TableCell>
-								<TableCell align="center">
-									<Typography variant="body1">78</Typography>
-								</TableCell>
-							</TableRow>
+							{ranking.map((player, index) => (
+								<TableRow
+									selected={player.username === auth.userInfo?.username}
+									key={index}
+								>
+									<TableCell component="th" scope="row">
+										<Typography variant="subtitle1">{index + 1}.</Typography>
+									</TableCell>
+									<TableCell>
+										<Typography variant="body1">{player.username}</Typography>
+									</TableCell>
+									<TableCell align="center">
+										<Typography variant="body1">{`${player.totalScore} (${player.coinScore})`}</Typography>
+									</TableCell>
+								</TableRow>
+							))}
 						</TableBody>
 					</Table>
 				</div>
