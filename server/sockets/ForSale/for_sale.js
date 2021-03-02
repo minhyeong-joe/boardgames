@@ -343,7 +343,7 @@ const updateForSale = (io) => ({ type, payload, room, userId }) => {
 	}
 };
 
-const endForSale = (io) => (room) => {
+const endForSale = (io) => ({ room }) => {
 	gameStates[room.id] = null;
 	delete gameStates[room.id];
 	io.in(room.id).emit("updateGameState", null);

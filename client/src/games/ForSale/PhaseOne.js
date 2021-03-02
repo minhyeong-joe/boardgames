@@ -34,9 +34,6 @@ const useStyles = makeStyles((theme) => ({
 	card: {
 		position: "relative",
 		borderRadius: "12px",
-	},
-	cardImage: {
-		height: "auto",
 		width: "120px",
 	},
 	cardOverlay: {
@@ -48,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
-		backgroundColor: "rgba(0,0,0,0.4)",
+		backgroundColor: "rgba(0,0,0,0.5)",
 		"& *": {
 			color: "white",
 		},
@@ -66,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
 	biddingStatus: {
 		border: "1px solid #aaa",
 		padding: theme.spacing(1),
+		backgroundColor: "#eee",
 	},
 	coinImage: {
 		width: "60px",
@@ -83,13 +81,23 @@ const useStyles = makeStyles((theme) => ({
 		"&>.MuiGrid-item:first-child, &>.MuiGrid-item:nth-child(2)": {
 			borderRight: `1px solid #aaa`,
 		},
+		"& p": {
+			fontWeight: "bold",
+		},
 	},
 	btnGroup: {
 		marginTop: theme.spacing(2),
 		textAlign: "center",
+		"&>button": {
+			fontWeight: "bold",
+		},
 		"&>button:first-child": {
 			marginRight: theme.spacing(4),
 		},
+	},
+	gameStateHeader: {
+		fontWeight: "bold",
+		fontSize: "0.8rem",
 	},
 	[theme.breakpoints.down("xs")]: {
 		cardImage: {
@@ -254,7 +262,9 @@ const PhaseOne = ({ socket, gameState, room }) => {
 							</Grid>
 						</Grid>
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						<Typography variant="overline">Bidding Status</Typography>
+						<Typography variant="overline" className={classes.gameStateHeader}>
+							Bidding Status
+						</Typography>
 						<Grid container className={classes.biddingRow} spacing={1}>
 							{gameState.players.map((player) => {
 								return (
@@ -339,7 +349,12 @@ const PhaseOne = ({ socket, gameState, room }) => {
 						{myState && myState.properties.length > 0 && (
 							<>
 								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-								<Typography variant="overline">My Properties</Typography>
+								<Typography
+									variant="overline"
+									className={classes.gameStateHeader}
+								>
+									My Properties
+								</Typography>
 								<Grid container item xs spacing={1} justify="flex-start">
 									{myState.properties.map((propertyCard) => (
 										<Grid item key={propertyCard.value}>

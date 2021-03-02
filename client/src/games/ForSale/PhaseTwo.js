@@ -42,10 +42,6 @@ const useStyles = makeStyles((theme) => ({
 			border: "2px solid orange",
 			boxShadow: "0 0 10px orange",
 		},
-		"&.waiting": {
-			border: "2px dashed black",
-			boxShadow: "none",
-		},
 	},
 	cardOverlay: {
 		position: "absolute",
@@ -61,15 +57,27 @@ const useStyles = makeStyles((theme) => ({
 			color: "white",
 		},
 		"&.front": {
+			backgroundColor: "lightblue",
+			"& *": {
+				color: "black",
+			},
+		},
+		"&.toBeSelected": {
+			border: "2px dashed black",
+			boxShadow: "none",
 			backgroundColor: "white",
 			"& *": {
 				color: "black",
 			},
 		},
 	},
+	username: {
+		fontSize: "1.2rem",
+		fontWeight: "bold",
+	},
 	selectableProperty: {
 		cursor: "pointer",
-		border: "2px solid transparent",
+		border: "2px solid lightblue",
 	},
 	confirmBtn: {
 		marginLeft: "auto",
@@ -90,6 +98,10 @@ const useStyles = makeStyles((theme) => ({
 	},
 	cardImage: {
 		width: "100%",
+	},
+	gameStateHeader: {
+		fontWeight: "bold",
+		fontSize: "0.8rem",
 	},
 	flipContainer: {
 		width: "120px",
@@ -299,7 +311,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 															</Typography>
 														</div>
 													</Card>
-													<Typography variant="subtitle1" align="center">
+													<Typography
+														variant="subtitle1"
+														align="center"
+														className={classes.username}
+													>
 														{player.username}
 													</Typography>
 												</Grid>
@@ -317,7 +333,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 															<Typography variant="h4">?</Typography>
 														</div>
 													</Card>
-													<Typography variant="subtitle1" align="center">
+													<Typography
+														variant="subtitle1"
+														align="center"
+														className={classes.username}
+													>
 														{player.username}
 													</Typography>
 												</Grid>
@@ -325,17 +345,21 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 											{/* Player has not selected yet */}
 											{!player.selected && (
 												<Grid item>
-													<Card className={`${classes.card} waiting`}>
+													<Card className={`${classes.card}`}>
 														<CardMedia
 															src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
 															component="img"
 															className={classes.cardImage}
 														/>
 														<div
-															className={`${classes.cardOverlay} front`}
+															className={`${classes.cardOverlay} toBeSelected`}
 														></div>
 													</Card>
-													<Typography variant="subtitle1" align="center">
+													<Typography
+														variant="subtitle1"
+														align="center"
+														className={classes.username}
+													>
 														{player.username}
 													</Typography>
 												</Grid>
@@ -376,7 +400,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 																</Card>
 															</div>
 														</div>
-														<Typography variant="subtitle1" align="center">
+														<Typography
+															variant="subtitle1"
+															align="center"
+															className={classes.username}
+														>
 															{player.username}
 														</Typography>
 													</Grid>
@@ -388,7 +416,16 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</>
 						)}
 						{activePlayer?.userId === myState?.userId && (
-							<Typography variant="h5" align="center" color="error">
+							<Typography
+								variant="h5"
+								align="center"
+								color="error"
+								style={{
+									fontWeight: "bold",
+									backgroundColor: "lightsalmon",
+									borderRadius: "12px",
+								}}
+							>
 								Your Turn
 							</Typography>
 						)}
@@ -433,7 +470,11 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 							</Button>
 						)}
 						<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
-						<Typography variant="overline" style={{ marginBottom: "12px" }}>
+						<Typography
+							variant="overline"
+							className={classes.gameStateHeader}
+							style={{ marginBottom: "12px" }}
+						>
 							My Coins: $ {remainingCoins()}
 						</Typography>
 						<Grid container spacing={1} justify="flex-start">

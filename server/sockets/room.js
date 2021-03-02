@@ -161,6 +161,22 @@ const startGame = (io, socket) => (payload) => {
 	});
 };
 
+const endGame = (io, socket) => (payload) => {
+	const { roodId } = payload;
+	const room = rooms.find((room) => room.id === roomId);
+	room.isPlaying = false;
+	// update room info at the lobby
+	socket.broadcast
+		.to(`lobby-${room.gameId}`)
+		.emit("loadRooms", { rooms: getRooms(room.gameId) });
+	// update room info in the room
+	socket.broadcast.to(roomId).emit("updateRoom", { room });
+	io.in(roomId).emit("log", {
+		timestamp: Date.now(),
+		message: "Game has ended",
+	});
+};
+
 // On user leaves a room
 const userExit = (io, socket) => {
 	const roomName = userRooms[socket.id];
@@ -252,4 +268,5 @@ module.exports = {
 	sendMessage,
 	moveTurn,
 	startGame,
+	endGame,
 };

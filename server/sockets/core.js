@@ -12,6 +12,7 @@ const {
 	userExit,
 	moveTurn,
 	startGame,
+	endGame,
 } = require("./room");
 
 exports = module.exports = (io) => {
@@ -40,6 +41,9 @@ exports = module.exports = (io) => {
 
 		// on game start
 		socket.on("startGame", startGame(io, socket));
+
+		// on game end
+		socket.on("endGame", endGame(io, socket));
 
 		// ************* GAME OPERATIONS ******************
 		// For Sale

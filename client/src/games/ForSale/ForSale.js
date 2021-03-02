@@ -11,6 +11,11 @@ const useStyles = makeStyles((theme) => ({
 		flexGrow: 1,
 		minHeight: "50vh",
 		border: `1px solid ${theme.palette.grey[500]}`,
+		backgroundImage:
+			'url("https://images.unsplash.com/photo-1525034687081-c702010cb70d?ixid=MXwxMjA3fDB8MHxzZWFyY2h8MXx8d29vZCUyMHRleHR1cmV8ZW58MHx8MHw%3D&ixlib=rb-1.2.1&w=1000&q=80")',
+		backgroundRepeat: "no-repeat",
+		backgroundSize: "cover",
+		position: "relative",
 	},
 }));
 

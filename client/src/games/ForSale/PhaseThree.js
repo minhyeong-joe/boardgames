@@ -38,26 +38,28 @@ const useStyles = makeStyles((theme) => ({
 
 const PhaseThree = ({ socket, gameState, room }) => {
 	const classes = useStyles();
-	const [showStart, setShowStart] = useState(false);
+	const [showEnd, setShowEnd] = useState(false);
 	const [ranking, setRanking] = useState([]);
 	const auth = useSelector((state) => state.auth);
+	const [isOwner, setIsOwner] = useState(false);
 
 	useEffect(() => {
 		setTimeout(() => {
-			setShowStart(true);
+			setShowEnd(true);
 		}, 5000);
 	}, []);
 
 	useEffect(() => {
 		const ownerId = room.members.find((member) => member.isOwner).userId;
 		if (ownerId === auth.userInfo?._id) {
+			setIsOwner(true);
 			socket.emit("moveTurn", { roomId: room.id });
 		}
 	}, [auth]);
 
 	useEffect(() => {
 		const playerRanking = [];
-		gameState?.players.forEach((player) => {
+		gameState.players.forEach((player) => {
 			playerRanking.push({
 				username: player.username,
 				coinScore: player.coinScore,
@@ -75,10 +77,22 @@ const PhaseThree = ({ socket, gameState, room }) => {
 		setRanking(playerRanking);
 	}, [gameState]);
 
+	const onGameEnd = () => {
+		socket.emit("endForSale", { room });
+		socket.emit("endGame", { roomId: room.id });
+	};
+
 	return (
 		<div className={classes.root}>
-			{showStart && (
-				<GameStart socket={socket} gameState={gameState} room={room} />
+			{isOwner && showEnd && (
+				<Button variant="contained" color="primary" onClick={onGameEnd}>
+					End Game
+				</Button>
+			)}
+			{showEnd && (
+				<Typography variant="h5">
+					Wait for room owner to begin the game
+				</Typography>
 			)}
 			<Paper className={classes.scoreBoard}>
 				<Typography variant="h4" align="center">
