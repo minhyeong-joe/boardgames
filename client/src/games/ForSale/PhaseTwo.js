@@ -279,109 +279,107 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 						{myState.selected && (
 							<>
 								<Grid container spacing={2} justify="flex-start">
-									{gameState.players.map((player) => {
-										return (
-											<Grid
-												item
-												container
-												spacing={1}
-												xs={12}
-												sm={6}
-												alignItems="center"
-												justify="center"
-												zeroMinWidth
-												wrap="wrap"
-												style={{ lineBreak: "anywhere" }}
-												key={player.userId}
-											>
-												<Grid item xs={6}>
-													<Typography variant="body1">
-														{player.username}:
+									{gameState.players.map((player) => (
+										<>
+											{/* My own card is always visible */}
+											{player.userId === myState.userId && (
+												<Grid item key={player.userId}>
+													<Card className={classes.card}>
+														<CardMedia
+															src={player.selectedProperty.image_url}
+															component="img"
+															className={classes.cardImage}
+														/>
+														<div className={`${classes.cardOverlay} front`}>
+															<Typography variant="h5">
+																{player.selectedProperty.value}
+															</Typography>
+														</div>
+													</Card>
+													<Typography variant="subtitle1" align="center">
+														{player.username}
 													</Typography>
 												</Grid>
-												<Grid item xs={6}>
-													{/* My own card is always visible */}
-													{player.userId === myState.userId && (
-														<Card className={`${classes.card}`}>
-															<CardMedia
-																src={player.selectedProperty.image_url}
-																component="img"
-																className={classes.cardImage}
-															/>
-															<div className={`${classes.cardOverlay} front`}>
-																<Typography variant="h5">
-																	{player.selectedProperty.value}
-																</Typography>
-															</div>
-														</Card>
-													)}
-													{/* Player selected but is hidden yet */}
-													{player.selected &&
-														player.selectedProperty === "hidden" && (
-															<Card className={`${classes.card}`}>
-																<CardMedia
-																	src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-																	component="img"
-																	className={classes.cardImage}
-																/>
-																<div className={`${classes.cardOverlay}`}>
-																	<Typography variant="h4">?</Typography>
-																</div>
-															</Card>
-														)}
-													{/* Player has not selected yet */}
-													{!player.selected && (
-														<Card className={`${classes.card} waiting`}>
-															<CardMedia
-																src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-																component="img"
-																className={classes.cardImage}
-															/>
-															<div
-																className={`${classes.cardOverlay} front`}
-															></div>
-														</Card>
-													)}
-													{/* Other players' cards are now revealed */}
-													{player.userId !== myState.userId &&
-														player.selectedProperty !== "hidden" && (
-															<div className={`${classes.flipContainer}`}>
-																<div
-																	className={`${classes.flipCard} ${
-																		showCards ? "reveal" : ""
-																	}`}
-																>
-																	<Card className={classes.back}>
-																		<CardMedia
-																			src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
-																			component="img"
-																			className={classes.cardImage}
-																		/>
-																		<div className={`${classes.cardOverlay}`}>
-																			<Typography variant="h4">?</Typography>
-																		</div>
-																	</Card>
-																	<Card className={classes.front}>
-																		<CardMedia
-																			src={player.selectedProperty.image_url}
-																			component="img"
-																			className={classes.cardImage}
-																		/>
-																		<div
-																			className={`${classes.cardOverlay} front`}
-																		>
-																			<Typography variant="h5">
-																				{player.selectedProperty.value}
-																			</Typography>
-																		</div>
-																	</Card>
-																</div>
-															</div>
-														)}
+											)}
+											{/* Player selected but is hidden yet */}
+											{player.selected && player.selectedProperty === "hidden" && (
+												<Grid item key={`${player.userId}-selected-hidden`}>
+													<Card className={classes.card}>
+														<CardMedia
+															src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+															component="img"
+															className={classes.cardImage}
+														/>
+														<div className={`${classes.cardOverlay}`}>
+															<Typography variant="h4">?</Typography>
+														</div>
+													</Card>
+													<Typography variant="subtitle1" align="center">
+														{player.username}
+													</Typography>
 												</Grid>
-											</Grid>
-										);
-									})}
+											)}
+											{/* Player has not selected yet */}
+											{!player.selected && (
+												<Grid item key={`${player.userId}-not-selected`}>
+													<Card className={`${classes.card} waiting`}>
+														<CardMedia
+															src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+															component="img"
+															className={classes.cardImage}
+														/>
+														<div
+															className={`${classes.cardOverlay} front`}
+														></div>
+													</Card>
+													<Typography variant="subtitle1" align="center">
+														{player.username}
+													</Typography>
+												</Grid>
+											)}
+											{/* Other players' cards are now revealed */}
+											{player.userId !== myState.userId &&
+												player.selectedProperty !== "hidden" && (
+													<Grid item key={`${player.userId}-revealed`}>
+														<div className={`${classes.flipContainer}`}>
+															<div
+																className={`${classes.flipCard} ${
+																	showCards ? "reveal" : ""
+																}`}
+															>
+																<Card className={classes.back}>
+																	<CardMedia
+																		src="https://i.pinimg.com/236x/b9/70/33/b97033a8708d2cbaf7d1990020a89a54--playing-cards-deck.jpg"
+																		component="img"
+																		className={classes.cardImage}
+																	/>
+																	<div className={`${classes.cardOverlay}`}>
+																		<Typography variant="h4">?</Typography>
+																	</div>
+																</Card>
+																<Card className={classes.front}>
+																	<CardMedia
+																		src={player.selectedProperty.image_url}
+																		component="img"
+																		className={classes.cardImage}
+																	/>
+																	<div
+																		className={`${classes.cardOverlay} front`}
+																	>
+																		<Typography variant="h5">
+																			{player.selectedProperty.value}
+																		</Typography>
+																	</div>
+																</Card>
+															</div>
+														</div>
+														<Typography variant="subtitle1" align="center">
+															{player.username}
+														</Typography>
+													</Grid>
+												)}
+										</>
+									))}
 								</Grid>
 								<Divider style={{ marginTop: "12px", marginBottom: "12px" }} />
 							</>
