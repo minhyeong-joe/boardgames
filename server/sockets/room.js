@@ -229,7 +229,7 @@ const userExit = (io, socket) => {
 				room.isPlaying = false;
 				switch (room.gameId) {
 					case "4d6d6d26-3baa-4782-b06c-d5fb15f43e2b":
-						endForSale(io)(room);
+						endForSale(io)({ room });
 						break;
 
 					default:
