@@ -15,6 +15,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import GameStart from "./GameStart";
 
+import startSound from "../../assets/sound/starlight.wav";
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
@@ -42,8 +44,10 @@ const PhaseThree = ({ socket, gameState, room }) => {
 	const [ranking, setRanking] = useState([]);
 	const auth = useSelector((state) => state.auth);
 	const [isOwner, setIsOwner] = useState(false);
+	const [startAudio] = useState(new Audio(startSound));
 
 	useEffect(() => {
+		startAudio.play();
 		setTimeout(() => {
 			setShowEnd(true);
 		}, 5000);

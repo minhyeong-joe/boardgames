@@ -12,6 +12,10 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
+import startSound from "../../assets/sound/start.wav";
+import coinSound from "../../assets/sound/coin.wav";
+import passSound from "../../assets/sound/warm_beep.wav";
+
 // update type constants (manual sync with server-side constant needed)
 const TYPES = {
 	BID: "BID",
@@ -119,8 +123,30 @@ const PhaseOne = ({ socket, gameState, room }) => {
 	const [myState, setMyState] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
 	const [selectedValues, setSelectedValues] = useState(0);
+	const [startAudio] = useState(new Audio(startSound));
+	const [coinAudio] = useState(new Audio(coinSound));
+	const [passAudio] = useState(new Audio(passSound));
 
 	useEffect(() => {
+		if (
+			gameState &&
+			activePlayer &&
+			gameState.players.find((player) => player.userId === activePlayer.userId)
+				.bidding != null
+		) {
+			coinAudio.currentTime = 0;
+			coinAudio.play();
+		}
+		if (
+			gameState &&
+			activePlayer &&
+			gameState.players.find((player) => player.userId === activePlayer.userId)
+				.bidding == null
+		) {
+			passAudio.currentTime = 0;
+			passAudio.play();
+		}
+
 		const active = gameState?.players.find((player) => player.isTurn);
 		const me = gameState?.players.find(
 			(player) => player.userId === auth.userInfo._id
@@ -128,6 +154,10 @@ const PhaseOne = ({ socket, gameState, room }) => {
 		setActivePlayer(active);
 		setMyState(me);
 	}, [gameState]);
+
+	useEffect(() => {
+		startAudio.play();
+	}, []);
 
 	const onCoinClick = (index, value) => {
 		if (selectedCoins.includes(index)) {

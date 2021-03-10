@@ -89,8 +89,8 @@ const Room = ({ match }) => {
 				}
 			);
 
-			socket.on("updateRoom", ({ room }) => {
-				setRoom(room);
+			socket.on("updateRoom", ({ room: newRoom }) => {
+				setRoom(newRoom);
 			});
 		} else {
 			setRoom(null);

@@ -12,6 +12,12 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
+import startSound from "../../assets/sound/starlight.wav";
+import beepSound from "../../assets/sound/short_beep.wav";
+import propertySound from "../../assets/sound/warm_beep.wav";
+import cardSound from "../../assets/sound/card_flip.wav";
+import turnSound from "../../assets/sound/turn.ogg";
+
 // update type constants (manual sync with server-side constant needed)
 const TYPES = {
 	CONFIRM_PROPERTY: "CONFIRM_PROPERTY",
@@ -153,8 +159,34 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	const [activePlayer, setActivePlayer] = useState(null);
 	const [selectedPropertyIndex, setSelectedPropertyIndex] = useState(null);
 	const [showCards, setShowCards] = useState(false);
+	const [startAudio] = useState(new Audio(startSound));
+	const [propertyAudio] = useState(new Audio(propertySound));
+	const [beepAudio] = useState(new Audio(beepSound));
+	const [cardAudio] = useState(new Audio(cardSound));
+	const [turnAudio] = useState(new Audio(turnSound));
 
 	useEffect(() => {
+		if (gameState && gameState.players.every((player) => player.selected)) {
+			beepAudio.currentTime = 0;
+			beepAudio.play();
+		} else if (
+			gameState &&
+			myState &&
+			gameState.players.find((player) => player.userId === myState.userId)
+				.isTurn
+		) {
+			turnAudio.currentTime = 0;
+			turnAudio.play();
+		} else if (
+			gameState &&
+			activePlayer &&
+			gameState.players.find((player) => player.userId === activePlayer.userId)
+				.selected
+		) {
+			propertyAudio.currentTime = 0;
+			propertyAudio.play();
+		}
+
 		const me = gameState?.players.find(
 			(player) => player.userId === auth.userInfo._id
 		);
@@ -168,6 +200,8 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 		if (gameState?.players.every((player) => player.selected)) {
 			setTimeout(() => {
 				// add card flipping sound here in the future
+				cardAudio.currentTime = 0;
+				cardAudio.play();
 				setShowCards(true);
 			}, 1500);
 		} else {
@@ -179,6 +213,10 @@ const PhaseTwo = ({ socket, gameState, room }) => {
 	useEffect(() => {
 		console.log("PHASE 2", gameState);
 	}, [gameState]);
+
+	useEffect(() => {
+		startAudio.play();
+	}, []);
 
 	const onPropertySelect = (index) => {
 		if (!myState.isTurn) return;

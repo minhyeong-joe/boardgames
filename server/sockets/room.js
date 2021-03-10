@@ -162,7 +162,7 @@ const startGame = (io, socket) => (payload) => {
 };
 
 const endGame = (io, socket) => (payload) => {
-	const { roodId } = payload;
+	const { roomId } = payload;
 	const room = rooms.find((room) => room.id === roomId);
 	room.isPlaying = false;
 	// update room info at the lobby
