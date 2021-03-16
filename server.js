@@ -64,14 +64,14 @@ mongoose
 	)
 	.catch((err) => console.log(err));
 
-app.use(express.static(path.join(__dirname, "../client/build")));
+app.use(express.static(path.join(__dirname, "./client/build")));
 
 // API routes
 const userRoute = require("./routes/users");
 app.use("/api/users", userRoute);
 
 app.get("*", (req, res) => {
-	res.sendFile(path.join(__dirname, "../client/build/index.html"));
+	res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
 // socketio
