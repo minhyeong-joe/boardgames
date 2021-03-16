@@ -16,7 +16,7 @@ let origin_url;
 if (process.env.NODE_ENV == "development") {
 	origin_url = "http://localhost:3000";
 } else if (process.env.NODE_ENV == "production") {
-	origin_url = "https://family-board-game.herokuapp.com";
+	origin_url = "https://family-boardgame.herokuapp.com";
 }
 
 // Middlewares
