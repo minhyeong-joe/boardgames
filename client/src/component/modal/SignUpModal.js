@@ -4,7 +4,7 @@ import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import USER_API from "../../axios";
+import { USER_API } from "../../axios";
 
 import Modal from "./Modal";
 import Input from "../form/Input";
