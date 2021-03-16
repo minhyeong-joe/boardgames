@@ -64,18 +64,18 @@ mongoose
 	)
 	.catch((err) => console.log(err));
 
-app.use(express.static(path.join(__dirname, "./client/build")));
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 // API routes
 const userRoute = require("./routes/users");
 app.use("/api/users", userRoute);
 
-app.get("*", (req, res) => {
-	res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
-
 // socketio
 require("./sockets/core")(io);
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
 
 server.listen(PORT, () => {
 	console.log(`Server running on Port ${PORT}`);
