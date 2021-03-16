@@ -4,7 +4,7 @@ import { Button, IconButton, makeStyles, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import axios from "axios";
+import USER_API from "../../axios";
 
 import Modal from "./Modal";
 import Input from "../form/Input";
@@ -51,7 +51,7 @@ const SignUpModal = () => {
 	const modal = useSelector((state) => state.modal);
 
 	const onSubmit = async (values) => {
-		const { data } = await axios.post("http://localhost/api/users", {
+		const { data } = await USER_API.post("/", {
 			username: values.username,
 			password: values.password,
 		});
