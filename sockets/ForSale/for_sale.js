@@ -38,6 +38,8 @@ const initForSale = (io) => ({ room }) => {
 		for (let i = 0; i < 10; i++) {
 			initCoins.push(COINS[1000]);
 		}
+		initPropertyDeck = removeRandomFromDeck(INITIAL_PROPERTIES, 0);
+		initCurrencyDeck = removeRandomFromDeck(INITIAL_CURRENCIES, 0);
 	}
 	initPropertyDeck.forEach((property) => {
 		property.taken = null;
